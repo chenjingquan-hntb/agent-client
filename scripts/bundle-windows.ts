@@ -17,6 +17,10 @@ import { copyFile, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
+import { assertStableClientVersion, resolveBrandConfig } from "./brand-config.ts";
+
+// Validate before cargo or any packaging/signing work.
+const brand = resolveBrandConfig(process.env, { platform: "windows" });
 const packageName = "waku";
 const projectRoot = resolve(import.meta.dir, "..");
 
@@ -105,6 +109,8 @@ if (!version) {
   throw new Error(`Cargo package "${packageName}" was not found.`);
 }
 
+assertStableClientVersion(version);
+
 const hostLine = (await $`rustc -vV`.quiet().text())
   .split("\n")
   .find((line) => line.startsWith("host: "));
@@ -118,11 +124,11 @@ if (!targetTriple || !architecture) {
 
 // Fork: artifact names carry the brand; keep in step with waku.iss
 // (OutputBaseFilename), scripts/appcast-windows.ts, and release.yml.
-const packageDirectoryName = `cheaprouter-${version}-${targetTriple}`;
+const packageDirectoryName = `${brand.name.toLowerCase().replaceAll(" ", "-")}-${version}-${targetTriple}`;
 const archive = join(releaseDirectory, `${packageDirectoryName}.zip`);
 const installer = join(
   releaseDirectory,
-  `CheapRouter-${version}-${architecture}-Setup.exe`,
+  `${brand.name}-${version}-${architecture}-Setup.exe`,
 );
 
 await $`cargo build --locked --release --package waku --bin waku --bin waku_js_repl --package waku-daemon --bin waku-daemon`;
@@ -187,7 +193,13 @@ try {
   // The installer is what the in-app updater downloads and re-runs, so it
   // ships from the same signed staging directory as the zip.
   await rm(installer, { force: true });
-  await $`${findInnoSetupCompiler()} ${`/DAppVersion=${version}`} ${`/DArch=${architecture}`} ${`/DStageDir=${packageDirectory}`} ${`/DOutputDir=${releaseDirectory}`} ${join(projectRoot, "resources", "windows", "waku.iss")}`;
+  const brandDefines = [
+    `/DProductName=${brand.name}`, `/DProductAppId=${brand.windowsAppId}`,
+    `/DProductPublisher=${brand.publisher}`, `/DProductWebsite=${brand.website}`,
+    `/DProductReleasesURL=${brand.releasesUrl}`, `/DProductDirectory=${brand.platformDataName}`,
+    `/DProductMutex=${brand.bundleId}.Setup`,
+  ];
+  await $`${findInnoSetupCompiler()} ${brandDefines} ${`/DAppVersion=${version}`} ${`/DArch=${architecture}`} ${`/DStageDir=${packageDirectory}`} ${`/DOutputDir=${releaseDirectory}`} ${join(projectRoot, "resources", "windows", "waku.iss")}`;
   if (!existsSync(installer)) {
     throw new Error(`ISCC did not produce ${installer}`);
   }

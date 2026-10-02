@@ -1,0 +1,210 @@
+{
+  "date": "2026-10-02",
+  "client": {
+    "commit": "e60ae223687d536d43febf133aca76d5008e9a2b",
+    "read_method": "git show <commit>:<path>",
+    "files": [
+      {
+        "path": "crates/sub2api/src/client.rs",
+        "sha256": "5bf1927aca459b4d6b52d8027351463e9867ef38ec8402b708393cc14cd46e3e"
+      },
+      {
+        "path": "crates/sub2api/src/pay.rs",
+        "sha256": "7602a7979a1051bc3d086c207e5dad8dfcc776fc665bda13090161da2008ca08"
+      },
+      {
+        "path": "crates/sub2api/src/auth.rs",
+        "sha256": "badc4cac63660a784e66f3c46ef6a250559983e4f20e4e62bd0dd7063e39da89"
+      },
+      {
+        "path": "crates/sub2api/src/http.rs",
+        "sha256": "7ac3b112d912710ca80ac9e65aadff03f23414e7b43aca4c9e08a8650f2b37f4"
+      },
+      {
+        "path": "crates/sub2api/src/lib.rs",
+        "sha256": "0800bda016fb615e4014a1ef71a20a80a516120b9d6dca8328e177b379d03003"
+      },
+      {
+        "path": "src/app/cloud_account.rs",
+        "sha256": "b727062d576510790499421b45e0f6bb7683a55625557a723cf4e62346c49ada"
+      },
+      {
+        "path": "src/app/cloud_usage.rs",
+        "sha256": "8a6be5907b64fdbc9fbedde523f8105c172d7740e94f2a2011ef49529718bfd5"
+      },
+      {
+        "path": "src/app/cloud_pay.rs",
+        "sha256": "38d9b29a1878cd32c8605fda623c365fbb06e16fcac80853e21cfd707c6e7f87"
+      },
+      {
+        "path": "crates/sub2api/src/gateway.rs",
+        "sha256": "f52a7dfee05008e0579f8fcd7d568166bcd4681765f7522e22095a8c6792afe7"
+      },
+      {
+        "path": "crates/sub2api/src/global_config/codex.rs",
+        "sha256": "8fb644657bde3ce9eca7c91c1069765ea6981a1aa5b9a0d0381e3b778346cef5"
+      },
+      {
+        "path": "crates/sub2api/src/global_config/mod.rs",
+        "sha256": "ba38f43e78f34aa9dc5d6962658fbccb15b2203773d6b201518378345635fc1e"
+      },
+      {
+        "path": "crates/sub2api/src/model_test.rs",
+        "sha256": "473068badcea0bfbeb7097d3e75744fc6f926f21826bd81d54964994374a0bfc"
+      },
+      {
+        "path": "src/app/announcements.rs",
+        "sha256": "6f128f1501946101445f42d52a2118aa66fc4b7bb2fd24e9a20aeb2ebfe20e24"
+      },
+      {
+        "path": "src/app/plans_page.rs",
+        "sha256": "f64041418b379660bd2fa0a7c29d195450246aa6ba026b31396b8c36e10e1191"
+      },
+      {
+        "path": "crates/sub2api/src/images.rs",
+        "sha256": "cb411cd5a4bd195778fe8581456ce5fdf9cb57e6b8cc7f4cd437e94a83dba5f9"
+      },
+      {
+        "path": "src/app/model_plaza.rs",
+        "sha256": "a8f7182a8a286d9bbcced975f3dc3de5b90056903e09191b39f63659b6b3a495"
+      },
+      {
+        "path": "src/app/cloud_failover.rs",
+        "sha256": "dd8f35328af753aa91d80eebdf034306755155c8ffeb908f787d9d63aba659c3"
+      },
+      {
+        "path": "crates/sub2api/src/global_config/claude.rs",
+        "sha256": "aba45481a40da593ce6f275404f02a830415311da4fad80ed9839ae0b5787e38"
+      },
+      {
+        "path": "crates/sub2api/src/global_config/native.rs",
+        "sha256": "a5ed5fc54bea94176727247b048175da2722f0e68c101803208becdebb13ccb5"
+      },
+      {
+        "path": "crates/sub2api/src/global_config/grok.rs",
+        "sha256": "d8fbcd4c4cb0835401e64ad6bc393fd646edb565331c7f34c354d31cba45b01d"
+      },
+      {
+        "path": "crates/sub2api/src/global_config/opencode.rs",
+        "sha256": "7e5fafcf614577097f6388325d0dfe78624ade057c1531f71e063b07d4a4e37e"
+      },
+      {
+        "path": "crates/sub2api/src/global_config/pi.rs",
+        "sha256": "844f02120f4f98dbfdac234f2b5d8625e753884886d6d3a984a07baab1d2ef98"
+      }
+    ]
+  },
+  "server": {
+    "tag": "v1.0.0-rc.37",
+    "commit": "385d2dfd10d821b25c8a6766bd16eea248cb1652",
+    "read_method": "git show v1.0.0-rc.37:<path>; never working-tree develop API source",
+    "files": [
+      {
+        "path": "middleware/auth.go",
+        "sha256": "78fe8c852fec30d786195bde9239e87ce3ce7d847fd4f35e501d4f649bc7df20"
+      },
+      {
+        "path": "common/page_info.go",
+        "sha256": "d9956ddfee58ed3c69a87b04a865308a29e9f1186aad28f2b2b6b0097953d977"
+      },
+      {
+        "path": "controller/token.go",
+        "sha256": "f0bfb80934baeec4459fee7a2429574b950a83b16146279fe9f29d5a45f27f25"
+      },
+      {
+        "path": "controller/auth_session.go",
+        "sha256": "9293ce88d5a3df7fb30622954632d5b78e51962aa5d12c3ee4b7b3e4d5a1d753"
+      },
+      {
+        "path": "controller/user.go",
+        "sha256": "827d0a8d4d2dc3935823a6d5aff367ba505f5b415fe31e65eeccfb1482637a2c"
+      },
+      {
+        "path": "controller/subscription.go",
+        "sha256": "ca0b23ae2362b787039fd2e2845a9e0b178a6b9a055ff291ffcec5b9fd9eab84"
+      },
+      {
+        "path": "controller/group.go",
+        "sha256": "cd93fe5e9b1c314b2d6100925496b294980e7301ed879b0a22a1cc8be83ea727"
+      },
+      {
+        "path": "controller/pricing.go",
+        "sha256": "139529725b9fa82468f0903509caf0e989ee8f867b077f37d7a0a7eefac5dd39"
+      },
+      {
+        "path": "model/pricing.go",
+        "sha256": "204c927130be9db08e94efba83e20425229a535b730ae8e04da514b78a7b1924"
+      },
+      {
+        "path": "controller/log.go",
+        "sha256": "2b7980c24d58a32547204a69286198903b3fc1ee800e4e01338a788e269693df"
+      },
+      {
+        "path": "model/log.go",
+        "sha256": "cb504d94576d702d23be4f95a4d5d79968dba4485103a78fa73ad2e0c2e272dc"
+      },
+      {
+        "path": "model/token.go",
+        "sha256": "ed65d1ffe583fe09d94e70997e6cc8536a949816ce79d0bc71ec8b518179041c"
+      },
+      {
+        "path": "router/api-router.go",
+        "sha256": "a119494f0b1d43f8cc341ef33ad097ec7555d1132a1d47030e77aae8541aa7c5"
+      },
+      {
+        "path": "model/subscription.go",
+        "sha256": "c233eafac976f3d2fc3d61332666270903947561bd5b6f112086be28ae301dab"
+      },
+      {
+        "path": "common/utils.go",
+        "sha256": "8cf830104bd2636a090e11e2e337def95518fb451b0efd07adfccdee3f842ffa"
+      },
+      {
+        "path": "service/auth_session.go",
+        "sha256": "90d09d275d03642688e067495b135f9fbd6609668e70ea2cee86fd06e42127c6"
+      },
+      {
+        "path": "common/constants.go",
+        "sha256": "75799d43de77ae697b3f9a60c55dee8bdad4b7b7595604d94186fb4b1de5bb2f"
+      },
+      {
+        "path": "router/relay-router.go",
+        "sha256": "6c40287a68337d7b8dd655c6db64abde2cb625b4b99a37eff4d80e8b837d55ac"
+      },
+      {
+        "path": "pkg/jsplugin/routing.go",
+        "sha256": "3f63df09ca29fc8f0f739e77d121ddff8aa23aef3ddf55e6afad3df3b45ad5b9"
+      },
+      {
+        "path": "router/task-plugin-protocol-router.go",
+        "sha256": "697e742eb7b02883fa7048b0341400ddd0c2f206e5631c7921b13692618c70ce"
+      },
+      {
+        "path": "common/gin.go",
+        "sha256": "0f331d9337653f459f640f64b8d9ec77c175c356fe523e81143ca5077e1b1c4c"
+      },
+      {
+        "path": "service/log_info_generate.go",
+        "sha256": "8dbf8b2be5f593794ce289c394aa41f6913c628ce2b4da18636f18dcc99b2f48"
+      },
+      {
+        "path": "constant/endpoint_type.go",
+        "sha256": "a3b248b56f2e7944e482b0857ea9a4e1885a0e9362cb6efde442ebda0d8a2c4c"
+      },
+      {
+        "path": "model/log_other.go",
+        "sha256": "a417904e8e13551ea7d9ea391030b176bbf93d88620bbe3d475c71797c12318e"
+      },
+      {
+        "path": "controller/misc.go",
+        "sha256": "e97f59d2230aee0e857ecdd29a4ec2c861c6abfe89f51b1615370800ecd27603"
+      },
+      {
+        "path": "router/main.go",
+        "sha256": "182e4657910a1a8a1eb3dd834a6ebebb868280d4cb8ae994cecb45e3e9c7408e"
+      }
+    ]
+  },
+  "runtime": "NOT_RUN",
+  "credentials": "Synthetic FIXTURE_ONLY_* literals only; no user profile or real credentials read"
+}

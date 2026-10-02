@@ -1,0 +1,615 @@
+{
+  "note": "Synthetic original client-api-v1 targets, not captures or completed rc.37 mappings.",
+  "cases": [
+    {
+      "id": "A01",
+      "dto": "User",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/api/v1/auth/me",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": {
+            "id": 101,
+            "email": "fixture@example.invalid",
+            "username": "fixture-user",
+            "role": "user",
+            "balance": 2,
+            "status": "active",
+            "allowed_groups": [
+              101,
+              102
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "A02",
+      "dto": "Vec<Group>",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/api/v1/groups/available",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": [
+            {
+              "id": 101,
+              "name": "fixture-standard",
+              "description": "Synthetic ordinary-user group",
+              "platform": "openai",
+              "rate_multiplier": 1,
+              "status": "active",
+              "subscription_type": "standard",
+              "daily_limit_usd": null,
+              "weekly_limit_usd": null,
+              "monthly_limit_usd": null
+            },
+            {
+              "id": 102,
+              "name": "fixture-subscription",
+              "description": "Synthetic ordinary-user group",
+              "platform": "openai",
+              "rate_multiplier": 1,
+              "status": "active",
+              "subscription_type": "subscription",
+              "daily_limit_usd": 2,
+              "weekly_limit_usd": 10,
+              "monthly_limit_usd": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "A03",
+      "dto": "Vec<SubscriptionProgress>",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/api/v1/subscriptions/progress",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": [
+            {
+              "subscription": {
+                "id": 201,
+                "group_id": 102,
+                "starts_at": "2026-10-01T00:00:00Z",
+                "expires_at": "2026-11-01T00:00:00Z",
+                "status": "active",
+                "group": {
+                  "id": 102,
+                  "name": "fixture-subscription",
+                  "description": "Synthetic ordinary-user group",
+                  "platform": "openai",
+                  "rate_multiplier": 1,
+                  "status": "active",
+                  "subscription_type": "subscription",
+                  "daily_limit_usd": 2,
+                  "weekly_limit_usd": 10,
+                  "monthly_limit_usd": 30
+                }
+              },
+              "progress": {
+                "group_name": "fixture-subscription",
+                "expires_at": "2026-11-01T00:00:00Z",
+                "expires_in_days": 30,
+                "daily": {
+                  "limit_usd": 2,
+                  "used_usd": 0.5,
+                  "remaining_usd": 1.5,
+                  "percentage": 25,
+                  "resets_in_seconds": 3600
+                },
+                "weekly": null,
+                "monthly": null
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "A04",
+      "dto": "Paginated<ApiKey>",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/api/v1/keys?page=1&page_size=50",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": {
+            "items": [
+              {
+                "id": 401,
+                "key": "FIXTURE_ONLY_MODEL_KEY",
+                "name": "fixture-client-key",
+                "group_id": 101,
+                "status": "active"
+              }
+            ],
+            "total": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "A05",
+      "dto": "ApiKey",
+      "request": {
+        "method": "POST",
+        "url": "https://example.invalid/api/v1/keys",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": {
+          "name": "fixture-client-key",
+          "group_id": 101
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": {
+            "id": 401,
+            "key": "FIXTURE_ONLY_MODEL_KEY",
+            "name": "fixture-client-key",
+            "group_id": 101,
+            "status": "active"
+          }
+        }
+      }
+    },
+    {
+      "id": "A06",
+      "dto": "TokenPair",
+      "request": {
+        "method": "POST",
+        "url": "https://example.invalid/api/v1/auth/refresh",
+        "headers": {},
+        "body": {
+          "refresh_token": "FIXTURE_ONLY_ACCOUNT_REFRESH"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": {
+            "access_token": "FIXTURE_ONLY_ACCOUNT_ACCESS",
+            "refresh_token": "FIXTURE_ONLY_ACCOUNT_REFRESH",
+            "expires_in": 900
+          }
+        }
+      }
+    },
+    {
+      "id": "A07",
+      "dto": "DesktopSession",
+      "request": {
+        "method": "POST",
+        "url": "https://example.invalid/api/v1/auth/desktop-session/exchange",
+        "headers": {},
+        "body": {
+          "code": "FIXTURE_ONLY_ONE_TIME_CODE",
+          "code_verifier": "FIXTURE_ONLY_VERIFIER"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": {
+            "access_token": "FIXTURE_ONLY_ACCOUNT_ACCESS",
+            "refresh_token": "FIXTURE_ONLY_ACCOUNT_REFRESH",
+            "expires_in": 900,
+            "api_key": "FIXTURE_ONLY_MODEL_KEY",
+            "claude_api_key": null,
+            "codex_api_key": null
+          }
+        }
+      }
+    },
+    {
+      "id": "A08",
+      "dto": "serde_json::Value",
+      "request": {
+        "method": "POST",
+        "url": "https://example.invalid/api/v1/auth/logout",
+        "headers": {},
+        "body": {
+          "refresh_token": "FIXTURE_ONLY_ACCOUNT_REFRESH"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": {}
+        }
+      }
+    },
+    {
+      "id": "A09",
+      "dto": "ModelCatalog",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/api/v1/models/catalog",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": {
+            "items": [
+              {
+                "model": "fixture-model",
+                "display_name": "Fixture Model",
+                "platform": "openai",
+                "billing_mode": "token",
+                "best_group": {
+                  "id": 101,
+                  "name": "fixture-standard",
+                  "rate_multiplier": 1,
+                  "rate_source": "group_default"
+                },
+                "available_group_count": 1,
+                "official_pricing": {
+                  "input_per_mtok_usd": 0.2,
+                  "output_per_mtok_usd": 0.8,
+                  "cache_write_per_mtok_usd": 0.25,
+                  "cache_read_per_mtok_usd": 0.02,
+                  "per_request_usd": null,
+                  "per_image_usd": null,
+                  "source": "fixture-reference",
+                  "has_reference": true
+                },
+                "effective_pricing_usd": {
+                  "input_per_mtok_usd": 0.2,
+                  "output_per_mtok_usd": 0.8,
+                  "cache_write_per_mtok_usd": 0.25,
+                  "cache_read_per_mtok_usd": 0.02,
+                  "per_request_usd": null,
+                  "per_image_usd": null,
+                  "source": "fixture-reference",
+                  "has_reference": true
+                },
+                "comparison": {
+                  "savings_percent": 0,
+                  "is_cheaper_than_official": false
+                },
+                "pricing_details": {
+                  "supports_prompt_caching": true,
+                  "has_long_context_multiplier": false,
+                  "long_context_input_threshold": 0,
+                  "intervals": [
+                    {
+                      "min_tokens": 0,
+                      "max_tokens": null,
+                      "tier_label": "fixture-base",
+                      "input_per_mtok_usd": 0.2,
+                      "output_per_mtok_usd": null,
+                      "cache_write_per_mtok_usd": null,
+                      "cache_read_per_mtok_usd": null,
+                      "per_request_usd": null,
+                      "per_image_usd": null
+                    }
+                  ],
+                  "media_tiers": [
+                    {
+                      "tier": "1K",
+                      "official_usd": 0.1,
+                      "effective_usd": 0.1,
+                      "is_default_tier": true
+                    }
+                  ],
+                  "media_unit": "image"
+                },
+                "other_groups": [
+                  {
+                    "group": {
+                      "id": 102,
+                      "name": "fixture-subscription",
+                      "rate_multiplier": 1,
+                      "rate_source": "group_default"
+                    },
+                    "effective_pricing_usd": {
+                      "input_per_mtok_usd": 0.2,
+                      "output_per_mtok_usd": 0.8,
+                      "cache_write_per_mtok_usd": 0.25,
+                      "cache_read_per_mtok_usd": 0.02,
+                      "per_request_usd": null,
+                      "per_image_usd": null,
+                      "source": "fixture-reference",
+                      "has_reference": true
+                    },
+                    "comparison": {
+                      "savings_percent": null,
+                      "is_cheaper_than_official": false
+                    }
+                  }
+                ],
+                "context_window": 128000
+              }
+            ],
+            "summary": {
+              "total_models": 1,
+              "token_models": 1,
+              "non_token_models": 0,
+              "max_savings_percent": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "A10",
+      "dto": "Vec<raw-group-status>",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/api/v1/group-status",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": [
+            {
+              "group_id": 101,
+              "group_name": "fixture-standard",
+              "latest_status": "healthy",
+              "stable_status": "healthy",
+              "latency_ms": 30,
+              "availability24": 99.9,
+              "availability7d": 99.5
+            },
+            {
+              "group": {
+                "id": 102,
+                "name": "fixture-subscription"
+              },
+              "summary": {
+                "group_id": 102,
+                "group_name": "fixture-subscription",
+                "latest_status": "degraded",
+                "stable_status": "healthy",
+                "latency_ms": 50
+              },
+              "availability_24h": 99,
+              "availability_7d": 98
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "A11",
+      "dto": "UsageStats",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/api/v1/usage/stats?period=today",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": {
+            "total_requests": 1,
+            "total_input_tokens": 100,
+            "total_output_tokens": 20,
+            "total_cache_tokens": 10,
+            "total_tokens": 130,
+            "total_cost": 0.001,
+            "total_actual_cost": 0.001,
+            "average_duration_ms": 1200
+          }
+        }
+      }
+    },
+    {
+      "id": "A12",
+      "dto": "Paginated<UsageLog>",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/api/v1/usage?page=1&page_size=20&model=fixture%2Fmodel%20%2B&group_id=101",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": {
+            "items": [
+              {
+                "id": 501,
+                "model": "fixture/model +",
+                "input_tokens": 100,
+                "output_tokens": 20,
+                "cache_creation_tokens": 5,
+                "cache_read_tokens": 10,
+                "total_cost": 0.001,
+                "actual_cost": 0.001,
+                "stream": true,
+                "duration_ms": 1200,
+                "first_token_ms": 30,
+                "rate_multiplier": 1,
+                "long_context_billing_applied": false,
+                "image_count": 0,
+                "request_type": null,
+                "created_at": "2026-10-02T00:00:00Z",
+                "group": {
+                  "id": 101,
+                  "name": "fixture-standard",
+                  "description": "Synthetic ordinary-user group",
+                  "platform": "openai",
+                  "rate_multiplier": 1,
+                  "status": "active",
+                  "subscription_type": "standard",
+                  "daily_limit_usd": null,
+                  "weekly_limit_usd": null,
+                  "monthly_limit_usd": null
+                }
+              }
+            ],
+            "total": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "A13",
+      "dto": "RedeemResult",
+      "request": {
+        "method": "POST",
+        "url": "https://example.invalid/api/v1/redeem",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": {
+          "code": "FIXTURE_ONLY_REDEEM_CODE"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": {
+            "message": "fixture: redeemed",
+            "value": 1,
+            "new_balance": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "A14",
+      "dto": "ReferralInfo",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/api/v1/referral/info",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": {
+            "referral_code": "fixture-referral",
+            "referral_link": "https://example.invalid/register?aff=fixture-referral",
+            "stats": {
+              "total_referrals": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "A15",
+      "dto": "Vec<Announcement>",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/api/v1/announcements",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": [
+            {
+              "id": 301,
+              "title": "Fixture announcement",
+              "content": "**Synthetic** content only.",
+              "read_at": null,
+              "created_at": "2026-10-02T00:00:00Z"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "A16",
+      "dto": "serde_json::Value",
+      "request": {
+        "method": "POST",
+        "url": "https://example.invalid/api/v1/announcements/301/read",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+        },
+        "body": {}
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "code": 0,
+          "message": "",
+          "data": {}
+        }
+      }
+    }
+  ]
+}

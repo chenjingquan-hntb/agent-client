@@ -1,0 +1,1671 @@
+{
+  "format": "waku-client-dto-inventory-v1",
+  "client_commit": "e60ae223687d536d43febf133aca76d5008e9a2b",
+  "note": "Frozen Rust wire DTO field inventory, not production validator code. Target strict refresh overrides are in client-api-v1.md and offline tests.",
+  "types": {
+    "Envelope": {
+      "source": "C:crates/sub2api/src/client.rs:15",
+      "fields": [
+        {
+          "name": "code",
+          "rust_name": "code",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "message",
+          "rust_name": "message",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "reason",
+          "rust_name": "reason",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "data",
+          "rust_name": "data",
+          "rust_type": "Option<T>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "Paginated": {
+      "source": "C:crates/sub2api/src/client.rs:27",
+      "fields": [
+        {
+          "name": "items",
+          "rust_name": "items",
+          "rust_type": "Vec<T>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        },
+        {
+          "name": "total",
+          "rust_name": "total",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "User": {
+      "source": "C:crates/sub2api/src/client.rs:53",
+      "fields": [
+        {
+          "name": "id",
+          "rust_name": "id",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "email",
+          "rust_name": "email",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "username",
+          "rust_name": "username",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "role",
+          "rust_name": "role",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "balance",
+          "rust_name": "balance",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "status",
+          "rust_name": "status",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "allowed_groups",
+          "rust_name": "allowed_groups",
+          "rust_type": "Vec<i64>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "Group": {
+      "source": "C:crates/sub2api/src/client.rs:72",
+      "fields": [
+        {
+          "name": "id",
+          "rust_name": "id",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "name",
+          "rust_name": "name",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "description",
+          "rust_name": "description",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "platform",
+          "rust_name": "platform",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "rate_multiplier",
+          "rust_name": "rate_multiplier",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "status",
+          "rust_name": "status",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "subscription_type",
+          "rust_name": "subscription_type",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "daily_limit_usd",
+          "rust_name": "daily_limit_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "weekly_limit_usd",
+          "rust_name": "weekly_limit_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "monthly_limit_usd",
+          "rust_name": "monthly_limit_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "UserSubscription": {
+      "source": "C:crates/sub2api/src/client.rs:107",
+      "fields": [
+        {
+          "name": "id",
+          "rust_name": "id",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "group_id",
+          "rust_name": "group_id",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "starts_at",
+          "rust_name": "starts_at",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "expires_at",
+          "rust_name": "expires_at",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "status",
+          "rust_name": "status",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "group",
+          "rust_name": "group",
+          "rust_type": "Option<Group>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "SubscriptionWindow": {
+      "source": "C:crates/sub2api/src/client.rs:125",
+      "fields": [
+        {
+          "name": "limit_usd",
+          "rust_name": "limit_usd",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "used_usd",
+          "rust_name": "used_usd",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "remaining_usd",
+          "rust_name": "remaining_usd",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "percentage",
+          "rust_name": "percentage",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "resets_in_seconds",
+          "rust_name": "resets_in_seconds",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "SubscriptionUsage": {
+      "source": "C:crates/sub2api/src/client.rs:142",
+      "fields": [
+        {
+          "name": "group_name",
+          "rust_name": "group_name",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "expires_at",
+          "rust_name": "expires_at",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "expires_in_days",
+          "rust_name": "expires_in_days",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "daily",
+          "rust_name": "daily",
+          "rust_type": "Option<SubscriptionWindow>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        },
+        {
+          "name": "weekly",
+          "rust_name": "weekly",
+          "rust_type": "Option<SubscriptionWindow>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        },
+        {
+          "name": "monthly",
+          "rust_name": "monthly",
+          "rust_type": "Option<SubscriptionWindow>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "SubscriptionProgress": {
+      "source": "C:crates/sub2api/src/client.rs:159",
+      "fields": [
+        {
+          "name": "subscription",
+          "rust_name": "subscription",
+          "rust_type": "UserSubscription",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "progress",
+          "rust_name": "progress",
+          "rust_type": "Option<SubscriptionUsage>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "ApiKey": {
+      "source": "C:crates/sub2api/src/client.rs:211",
+      "fields": [
+        {
+          "name": "id",
+          "rust_name": "id",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "key",
+          "rust_name": "key",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "name",
+          "rust_name": "name",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "group_id",
+          "rust_name": "group_id",
+          "rust_type": "Option<i64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "status",
+          "rust_name": "status",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "Price": {
+      "source": "C:crates/sub2api/src/client.rs:228",
+      "fields": [
+        {
+          "name": "input_per_mtok_usd",
+          "rust_name": "input_per_mtok_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "output_per_mtok_usd",
+          "rust_name": "output_per_mtok_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "cache_write_per_mtok_usd",
+          "rust_name": "cache_write_per_mtok_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "cache_read_per_mtok_usd",
+          "rust_name": "cache_read_per_mtok_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "per_request_usd",
+          "rust_name": "per_request_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "per_image_usd",
+          "rust_name": "per_image_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "source",
+          "rust_name": "source",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "has_reference",
+          "rust_name": "has_reference",
+          "rust_type": "bool",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "Comparison": {
+      "source": "C:crates/sub2api/src/client.rs:250",
+      "fields": [
+        {
+          "name": "savings_percent",
+          "rust_name": "savings_percent",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "is_cheaper_than_official",
+          "rust_name": "is_cheaper_than_official",
+          "rust_type": "bool",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "GroupRef": {
+      "source": "C:crates/sub2api/src/client.rs:259",
+      "fields": [
+        {
+          "name": "id",
+          "rust_name": "id",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "name",
+          "rust_name": "name",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "rate_multiplier",
+          "rust_name": "rate_multiplier",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "rate_source",
+          "rust_name": "rate_source",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "PriceInterval": {
+      "source": "C:crates/sub2api/src/client.rs:273",
+      "fields": [
+        {
+          "name": "min_tokens",
+          "rust_name": "min_tokens",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "max_tokens",
+          "rust_name": "max_tokens",
+          "rust_type": "Option<i64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "tier_label",
+          "rust_name": "tier_label",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "input_per_mtok_usd",
+          "rust_name": "input_per_mtok_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "output_per_mtok_usd",
+          "rust_name": "output_per_mtok_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "cache_write_per_mtok_usd",
+          "rust_name": "cache_write_per_mtok_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "cache_read_per_mtok_usd",
+          "rust_name": "cache_read_per_mtok_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "per_request_usd",
+          "rust_name": "per_request_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "per_image_usd",
+          "rust_name": "per_image_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "PricingDetails": {
+      "source": "C:crates/sub2api/src/client.rs:296",
+      "fields": [
+        {
+          "name": "supports_prompt_caching",
+          "rust_name": "supports_prompt_caching",
+          "rust_type": "bool",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "has_long_context_multiplier",
+          "rust_name": "has_long_context_multiplier",
+          "rust_type": "bool",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "long_context_input_threshold",
+          "rust_name": "long_context_input_threshold",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "intervals",
+          "rust_name": "intervals",
+          "rust_type": "Vec<PriceInterval>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        },
+        {
+          "name": "media_tiers",
+          "rust_name": "media_tiers",
+          "rust_type": "Vec<MediaTier>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        },
+        {
+          "name": "media_unit",
+          "rust_name": "media_unit",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "MediaTier": {
+      "source": "C:crates/sub2api/src/client.rs:316",
+      "fields": [
+        {
+          "name": "tier",
+          "rust_name": "tier",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "official_usd",
+          "rust_name": "official_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "effective_usd",
+          "rust_name": "effective_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "is_default_tier",
+          "rust_name": "is_default_tier",
+          "rust_type": "bool",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "GroupCompanion": {
+      "source": "C:crates/sub2api/src/client.rs:329",
+      "fields": [
+        {
+          "name": "group",
+          "rust_name": "group",
+          "rust_type": "GroupRef",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "effective_pricing_usd",
+          "rust_name": "effective_pricing_usd",
+          "rust_type": "Price",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "comparison",
+          "rust_name": "comparison",
+          "rust_type": "Comparison",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "ModelCatalogItem": {
+      "source": "C:crates/sub2api/src/client.rs:342",
+      "fields": [
+        {
+          "name": "model",
+          "rust_name": "model",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "display_name",
+          "rust_name": "display_name",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "platform",
+          "rust_name": "platform",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "billing_mode",
+          "rust_name": "billing_mode",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "best_group",
+          "rust_name": "best_group",
+          "rust_type": "GroupRef",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "available_group_count",
+          "rust_name": "available_group_count",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "official_pricing",
+          "rust_name": "official_pricing",
+          "rust_type": "Price",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "effective_pricing_usd",
+          "rust_name": "effective_pricing_usd",
+          "rust_type": "Price",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "comparison",
+          "rust_name": "comparison",
+          "rust_type": "Comparison",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "pricing_details",
+          "rust_name": "pricing_details",
+          "rust_type": "PricingDetails",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        },
+        {
+          "name": "other_groups",
+          "rust_name": "other_groups",
+          "rust_type": "Vec<GroupCompanion>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        },
+        {
+          "name": "context_window",
+          "rust_name": "context_window",
+          "rust_type": "Option<u64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "CatalogSummary": {
+      "source": "C:crates/sub2api/src/client.rs:374",
+      "fields": [
+        {
+          "name": "total_models",
+          "rust_name": "total_models",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "token_models",
+          "rust_name": "token_models",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "non_token_models",
+          "rust_name": "non_token_models",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "max_savings_percent",
+          "rust_name": "max_savings_percent",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "ModelCatalog": {
+      "source": "C:crates/sub2api/src/client.rs:386",
+      "fields": [
+        {
+          "name": "items",
+          "rust_name": "items",
+          "rust_type": "Vec<ModelCatalogItem>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        },
+        {
+          "name": "summary",
+          "rust_name": "summary",
+          "rust_type": "Option<CatalogSummary>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "RedeemResult": {
+      "source": "C:crates/sub2api/src/client.rs:458",
+      "fields": [
+        {
+          "name": "message",
+          "rust_name": "message",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "value",
+          "rust_name": "value",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "new_balance",
+          "rust_name": "new_balance",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "ReferralStats": {
+      "source": "C:crates/sub2api/src/client.rs:468",
+      "fields": [
+        {
+          "name": "total_referrals",
+          "rust_name": "total_referrals",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "ReferralInfo": {
+      "source": "C:crates/sub2api/src/client.rs:475",
+      "fields": [
+        {
+          "name": "referral_code",
+          "rust_name": "referral_code",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "referral_link",
+          "rust_name": "referral_link",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "stats",
+          "rust_name": "stats",
+          "rust_type": "ReferralStats",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "Announcement": {
+      "source": "C:crates/sub2api/src/client.rs:486",
+      "fields": [
+        {
+          "name": "id",
+          "rust_name": "id",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "title",
+          "rust_name": "title",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "content",
+          "rust_name": "content",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "read_at",
+          "rust_name": "read_at",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "created_at",
+          "rust_name": "created_at",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "UsageStats": {
+      "source": "C:crates/sub2api/src/client.rs:515",
+      "fields": [
+        {
+          "name": "total_requests",
+          "rust_name": "total_requests",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "total_input_tokens",
+          "rust_name": "total_input_tokens",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "total_output_tokens",
+          "rust_name": "total_output_tokens",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "total_cache_tokens",
+          "rust_name": "total_cache_tokens",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "total_tokens",
+          "rust_name": "total_tokens",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "total_cost",
+          "rust_name": "total_cost",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "total_actual_cost",
+          "rust_name": "total_actual_cost",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "average_duration_ms",
+          "rust_name": "average_duration_ms",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "UsageLog": {
+      "source": "C:crates/sub2api/src/client.rs:536",
+      "fields": [
+        {
+          "name": "id",
+          "rust_name": "id",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "model",
+          "rust_name": "model",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "input_tokens",
+          "rust_name": "input_tokens",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "output_tokens",
+          "rust_name": "output_tokens",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "cache_creation_tokens",
+          "rust_name": "cache_creation_tokens",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "cache_read_tokens",
+          "rust_name": "cache_read_tokens",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "total_cost",
+          "rust_name": "total_cost",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "actual_cost",
+          "rust_name": "actual_cost",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "stream",
+          "rust_name": "stream",
+          "rust_type": "Option<bool>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "duration_ms",
+          "rust_name": "duration_ms",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "first_token_ms",
+          "rust_name": "first_token_ms",
+          "rust_type": "Option<i64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "rate_multiplier",
+          "rust_name": "rate_multiplier",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "long_context_billing_applied",
+          "rust_name": "long_context_billing_applied",
+          "rust_type": "bool",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "image_count",
+          "rust_name": "image_count",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "request_type",
+          "rust_name": "request_type",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "created_at",
+          "rust_name": "created_at",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "group",
+          "rust_name": "group",
+          "rust_type": "Option<Group>",
+          "default_on_missing": true,
+          "null_to_default": true,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "TokenPair": {
+      "source": "C:crates/sub2api/src/client.rs:585",
+      "fields": [
+        {
+          "name": "access_token",
+          "rust_name": "access_token",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "refresh_token",
+          "rust_name": "refresh_token",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "expires_in",
+          "rust_name": "expires_in",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "DesktopSession": {
+      "source": "C:crates/sub2api/src/client.rs:598",
+      "fields": [
+        {
+          "name": "access_token",
+          "rust_name": "access_token",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "refresh_token",
+          "rust_name": "refresh_token",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "expires_in",
+          "rust_name": "expires_in",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "api_key",
+          "rust_name": "api_key",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "claude_api_key",
+          "rust_name": "claude_api_key",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "codex_api_key",
+          "rust_name": "codex_api_key",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "MethodLimit": {
+      "source": "C:crates/sub2api/src/pay.rs:30",
+      "fields": [
+        {
+          "name": "available",
+          "rust_name": "available",
+          "rust_type": "bool",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "remaining",
+          "rust_name": "remaining",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "singleMin",
+          "rust_name": "single_min",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "singleMax",
+          "rust_name": "single_max",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "feeRate",
+          "rust_name": "fee_rate",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "PlanLimits": {
+      "source": "C:crates/sub2api/src/pay.rs:129",
+      "fields": [
+        {
+          "name": "daily_limit_usd",
+          "rust_name": "daily_limit_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "weekly_limit_usd",
+          "rust_name": "weekly_limit_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "monthly_limit_usd",
+          "rust_name": "monthly_limit_usd",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "SubscriptionPlan": {
+      "source": "C:crates/sub2api/src/pay.rs:142",
+      "fields": [
+        {
+          "name": "id",
+          "rust_name": "id",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "groupId",
+          "rust_name": "group_id",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "groupName",
+          "rust_name": "group_name",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "name",
+          "rust_name": "name",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "description",
+          "rust_name": "description",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "price",
+          "rust_name": "price",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "originalPrice",
+          "rust_name": "original_price",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "validityDays",
+          "rust_name": "validity_days",
+          "rust_type": "i64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "validityUnit",
+          "rust_name": "validity_unit",
+          "rust_type": "ValidityUnit",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "features",
+          "rust_name": "features",
+          "rust_type": "Vec<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": true
+        },
+        {
+          "name": "productName",
+          "rust_name": "product_name",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "platform",
+          "rust_name": "platform",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "rateMultiplier",
+          "rust_name": "rate_multiplier",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "limits",
+          "rust_name": "limits",
+          "rust_type": "Option<PlanLimits>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "defaultMappedModel",
+          "rust_name": "default_mapped_model",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "supportedModelScopes",
+          "rust_name": "supported_model_scopes",
+          "rust_type": "Vec<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": true
+        }
+      ]
+    },
+    "PayOrder": {
+      "source": "C:crates/sub2api/src/pay.rs:345",
+      "fields": [
+        {
+          "name": "orderId",
+          "rust_name": "order_id",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "amount",
+          "rust_name": "amount",
+          "rust_type": "f64",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "payAmount",
+          "rust_name": "pay_amount",
+          "rust_type": "Option<f64>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "status",
+          "rust_name": "status",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "paymentType",
+          "rust_name": "payment_type",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "payUrl",
+          "rust_name": "pay_url",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "qrCode",
+          "rust_name": "qr_code",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "clientSecret",
+          "rust_name": "client_secret",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "expiresAt",
+          "rust_name": "expires_at",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "statusAccessToken",
+          "rust_name": "status_access_token",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    },
+    "OrderStatus": {
+      "source": "C:crates/sub2api/src/pay.rs:373",
+      "fields": [
+        {
+          "name": "id",
+          "rust_name": "id",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "status",
+          "rust_name": "status",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "expiresAt",
+          "rust_name": "expires_at",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "paymentSuccess",
+          "rust_name": "payment_success",
+          "rust_type": "bool",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "rechargeSuccess",
+          "rust_name": "recharge_success",
+          "rust_type": "bool",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "rechargeStatus",
+          "rust_name": "recharge_status",
+          "rust_type": "String",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        },
+        {
+          "name": "failedReason",
+          "rust_name": "failed_reason",
+          "rust_type": "Option<String>",
+          "default_on_missing": true,
+          "null_to_default": false,
+          "lenient_strings": false
+        }
+      ]
+    }
+  }
+}

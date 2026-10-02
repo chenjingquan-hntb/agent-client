@@ -1,0 +1,282 @@
+{
+  "server_tag": "v1.0.0-rc.37",
+  "server_commit": "385d2dfd10d821b25c8a6766bd16eea248cb1652",
+  "note": "Synthetic wire projections from tag; all are NOT client-api-v1 numeric-code success envelopes.",
+  "cases": [
+    {
+      "id": "native-self",
+      "source": "S:controller/user.go:489-520",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": true,
+        "message": "",
+        "data": {
+          "id": 101,
+          "username": "fixture-user",
+          "display_name": "Fixture user",
+          "role": 1,
+          "status": 1,
+          "email": "fixture@example.invalid",
+          "group": "fixture-standard",
+          "quota": 500000,
+          "used_quota": 250000,
+          "request_count": 1,
+          "aff_code": "fixture-referral",
+          "aff_count": 2
+        }
+      }
+    },
+    {
+      "id": "native-groups",
+      "source": "S:controller/group.go:26-52",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": true,
+        "message": "",
+        "data": {
+          "fixture-standard": {
+            "ratio": 1,
+            "desc": "Synthetic ordinary-user group"
+          },
+          "auto": {
+            "ratio": "自动",
+            "desc": "fixture automatic group"
+          }
+        }
+      }
+    },
+    {
+      "id": "native-subscription",
+      "source": "S:controller/subscription.go:49-74; S:model/subscription.go:253-297",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": true,
+        "message": "",
+        "data": {
+          "billing_preference": "subscription_first",
+          "subscriptions": [
+            {
+              "subscription": {
+                "id": 201,
+                "user_id": 101,
+                "plan_id": 601,
+                "amount_total": 1000000,
+                "amount_used": 250000,
+                "start_time": 1790812800,
+                "end_time": 1793491200,
+                "status": "active",
+                "last_reset_time": 1790899200,
+                "next_reset_time": 1790985600,
+                "upgrade_group": "fixture-subscription"
+              }
+            }
+          ],
+          "all_subscriptions": []
+        }
+      }
+    },
+    {
+      "id": "native-token-list",
+      "source": "S:controller/token.go:55-69; S:model/token.go:14-32",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": true,
+        "message": "",
+        "data": {
+          "page": 1,
+          "page_size": 50,
+          "total": 1,
+          "items": [
+            {
+              "id": 401,
+              "user_id": 101,
+              "key": "FIXTURE_ONLY_MASKED_KEY**",
+              "status": 1,
+              "name": "fixture-client-key",
+              "created_time": 1790899200,
+              "accessed_time": 1790899200,
+              "expired_time": -1,
+              "remain_quota": 0,
+              "unlimited_quota": true,
+              "model_limits_enabled": false,
+              "model_limits": "",
+              "allow_ips": null,
+              "used_quota": 0,
+              "group": "fixture-standard",
+              "cross_group_retry": false,
+              "auto_groups": null
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "native-token-created",
+      "source": "S:controller/token.go:355-358",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": true,
+        "message": ""
+      }
+    },
+    {
+      "id": "native-token-key",
+      "source": "S:controller/token.go:203-205",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": true,
+        "message": "",
+        "data": {
+          "key": "FIXTURE_ONLY_MODEL_KEY"
+        }
+      }
+    },
+    {
+      "id": "native-pricing",
+      "source": "S:controller/pricing.go:67-76; S:model/pricing.go:28-51",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": true,
+        "data": [
+          {
+            "model_name": "fixture-model",
+            "quota_type": 0,
+            "model_ratio": 1,
+            "model_price": 0,
+            "owner_by": "fixture-vendor",
+            "completion_ratio": 4,
+            "cache_ratio": 0.1,
+            "enable_groups": [
+              "fixture-standard"
+            ],
+            "supported_endpoint_types": [
+              "openai"
+            ],
+            "billing_mode": "tokens"
+          }
+        ],
+        "vendors": [],
+        "group_ratio": {
+          "fixture-standard": 1
+        },
+        "usable_group": {
+          "fixture-standard": "fixture group"
+        },
+        "supported_endpoint": {},
+        "auto_groups": [],
+        "pricing_version": "fixture-version"
+      }
+    },
+    {
+      "id": "native-log-page",
+      "source": "S:controller/log.go:41-59; S:model/log.go:59-80; S:service/log_info_generate.go:97-107",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": true,
+        "message": "",
+        "data": {
+          "page": 1,
+          "page_size": 20,
+          "total": 1,
+          "items": [
+            {
+              "id": 1,
+              "user_id": 101,
+              "created_at": 1790899200,
+              "type": 2,
+              "content": "fixture usage",
+              "username": "fixture-user",
+              "token_name": "fixture-client-key",
+              "model_name": "fixture/model +",
+              "quota": 500,
+              "prompt_tokens": 100,
+              "completion_tokens": 20,
+              "use_time": 2,
+              "is_stream": true,
+              "group": "fixture-standard",
+              "other": "{\"group_ratio\":1,\"cache_tokens\":10,\"cache_creation_tokens\":5,\"frt\":30}"
+            }
+          ]
+        }
+      },
+      "note": "Synthetic user-visible projection: self log id is page-position display id, not persistent DB identity (model/log.go:110-122,560-605)."
+    },
+    {
+      "id": "native-log-stat",
+      "source": "S:controller/log.go:130-154",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": true,
+        "message": "",
+        "data": {
+          "quota": 500,
+          "rpm": 1,
+          "tpm": 120
+        }
+      }
+    },
+    {
+      "id": "native-redeem",
+      "source": "S:controller/user.go:1261-1265",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": true,
+        "message": "",
+        "data": 500000
+      }
+    },
+    {
+      "id": "native-aff",
+      "source": "S:controller/user.go:454-457",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": true,
+        "message": "",
+        "data": "fixture-referral"
+      }
+    },
+    {
+      "id": "native-notice",
+      "source": "S:controller/misc.go:179-183",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": true,
+        "message": "",
+        "data": "Fixture global notice"
+      }
+    },
+    {
+      "id": "native-business-error",
+      "source": "S:common/gin.go:199-210",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 200,
+      "body": {
+        "success": false,
+        "message": "fixture rejection"
+      }
+    },
+    {
+      "id": "native-auth-error",
+      "source": "S:middleware/auth.go:218-232",
+      "projection": "Synthetic selected wire fields; not a real response capture, no assumed mapping.",
+      "status": 401,
+      "body": {
+        "success": false,
+        "code": "AUTH_TOKEN_EXPIRED",
+        "message": "fixture account access expired"
+      }
+    }
+  ]
+}

@@ -31,26 +31,49 @@
   #define Architectures "x64compatible"
 #endif
 
+; Supplied by bundle-windows.ts after release preflight; fallbacks preserve development.
+#ifndef ProductName
+  #define ProductName "CheapRouter"
+#endif
+#ifndef ProductAppId
+  #define ProductAppId "7DC6C35B-FA40-4A95-B37A-626BF64556C5"
+#endif
+#ifndef ProductPublisher
+  #define ProductPublisher "CheapRouter"
+#endif
+#ifndef ProductWebsite
+  #define ProductWebsite "https://cheaprouter.cc"
+#endif
+#ifndef ProductReleasesURL
+  #define ProductReleasesURL "https://github.com/ai-poet/agent-client/releases"
+#endif
+#ifndef ProductDirectory
+  #define ProductDirectory "CheapRouter"
+#endif
+#ifndef ProductMutex
+  #define ProductMutex "CheapRouterSetup"
+#endif
+
 [Setup]
-; Never change AppId: it is how Windows and every later installer recognize
+; Once a site first ships, keep its configured AppId stable: it is how Windows and every later installer recognize
 ; an existing install, and how the updater replaces rather than duplicates it.
 ; This is the fork's own GUID, minted before the first release — it must not
 ; collide with upstream Waku's, so the two products can coexist on one machine.
-AppId={{7DC6C35B-FA40-4A95-B37A-626BF64556C5}
-AppName=CheapRouter
+AppId={{{#ProductAppId}}
+AppName={#ProductName}
 AppVersion={#AppVersion}
 VersionInfoVersion={#AppVersion}
-AppPublisher=CheapRouter
-AppPublisherURL=https://cheaprouter.cc
-AppSupportURL=https://github.com/ai-poet/agent-client/issues
-AppUpdatesURL=https://github.com/ai-poet/agent-client/releases
-DefaultDirName={autopf}\CheapRouter
-DefaultGroupName=CheapRouter
-UninstallDisplayName=CheapRouter
+AppPublisher={#ProductPublisher}
+AppPublisherURL={#ProductWebsite}
+AppSupportURL={#ProductWebsite}
+AppUpdatesURL={#ProductReleasesURL}
+DefaultDirName={autopf}\{#ProductDirectory}
+DefaultGroupName={#ProductName}
+UninstallDisplayName={#ProductName}
 UninstallDisplayIcon={app}\waku.exe
 LicenseFile={#StageDir}\LICENSE
 OutputDir={#OutputDir}
-OutputBaseFilename=CheapRouter-{#AppVersion}-{#Arch}-Setup
+OutputBaseFilename={#ProductName}-{#AppVersion}-{#Arch}-Setup
 SetupIconFile=AppIcon.ico
 Compression=lzma2/max
 SolidCompression=yes
@@ -62,7 +85,7 @@ ArchitecturesInstallIn64BitMode={#Architectures}
 MinVersion=10.0.17763
 ; Two installers must not race — the updater can be triggered again while an
 ; update is already applying.
-SetupMutex=CheapRouterSetup
+SetupMutex={#ProductMutex}
 ; No elevation, so an update never has to ask for it either.
 PrivilegesRequired=lowest
 DisableProgramGroupPage=yes
@@ -89,12 +112,12 @@ Source: "{#StageDir}\computer-use\pi-extension.ts"; DestDir: "{app}\computer-use
 Source: "{#StageDir}\skills\waku-computer-use\SKILL.md"; DestDir: "{app}\skills\waku-computer-use"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\CheapRouter"; Filename: "{app}\waku.exe"
-Name: "{userdesktop}\CheapRouter"; Filename: "{app}\waku.exe"; Tasks: desktopicon
+Name: "{group}\{#ProductName}"; Filename: "{app}\waku.exe"
+Name: "{userdesktop}\{#ProductName}"; Filename: "{app}\waku.exe"; Tasks: desktopicon
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked
 
 [Run]
 ; No skipifsilent: this is also how the updater's silent run brings the app back.
-Filename: "{app}\waku.exe"; Description: "{cm:LaunchProgram,CheapRouter}"; Flags: nowait postinstall
+Filename: "{app}\waku.exe"; Description: "{cm:LaunchProgram,{#ProductName}}"; Flags: nowait postinstall

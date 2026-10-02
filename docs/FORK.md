@@ -4,38 +4,34 @@ This is a fork of [egoist/waku](https://github.com/egoist/waku) that adds manage
 cloud account integration and assisted agent-CLI installation, and ships under
 our own brand. Everything else tracks upstream.
 
-## Remotes and branches
+## Current fork and remotes (verified 2026-10-02)
 
-| Remote | Points at |
+The hook register below was inherited from `ai-poet/agent-client`, itself based
+on `egoist/waku`. Its CheapRouter domains/service descriptions are provenance,
+not evidence that our New API backend supports those interfaces. Read
+[deployment decisions](migration/DEPLOYMENT-DECISIONS.md),
+[client plan](migration/CLIENT-IMPLEMENTATION-PLAN.md), and
+[current tasks](tasks/README.md) before implementing or releasing.
+
+| Remote | Current configuration |
 |---|---|
-| `origin` | our fork (**must be repointed after creating the org fork** — currently still upstream) |
-| `upstream` | `https://github.com/egoist/waku.git` |
+| `origin` | `https://github.com/chenjingquan-hntb/agent-client.git` |
+| `upstream` | `https://github.com/ai-poet/agent-client.git` |
 
-| Branch | Role |
-|---|---|
-| `main` | mirrors `upstream/main`, never edited directly |
-| `integration` | our default branch; all local work lands here |
+The local/default branch is `main` with setup documentation commits above
+upstream `0b4a71f6`. It is not an untouched upstream mirror; no local
+`integration` branch exists. Use reviewed task branches/PRs into the current fork
+default branch unless governance changes later. Do not blindly execute the
+inherited main fast-forward workflow.
 
-Repoint `origin` once the org fork exists:
+## Upstream maintenance plan
 
-```bash
-git remote set-url origin https://github.com/<org>/<fork>.git
-```
-
-## Weekly upstream merge
-
-Upstream averages ~15 commits/day. Merge weekly — letting it drift makes
-conflicts disproportionately worse.
-
-```bash
-git fetch upstream
-git checkout main && git merge --ff-only upstream/main
-git checkout integration && git merge main
-```
-
-Conflicts can only appear in the hook points listed below. If a conflict shows up
-anywhere else, our change leaked outside its module — move it back into a
-dedicated file.
+Check status/remotes/branch before fetching; review upstream changes in a
+separate synchronization branch, resolve registered hooks, run relevant tests,
+then submit a PR. Do not auto-merge into production/default branches. Weekly
+review is a starting cadence, not evidence of upstream commit volume. Extend
+the hook register where necessary rather than assuming all future conflicts
+fit the old table. Actual branch/remote changes are outside this document update.
 
 ## Design rule
 

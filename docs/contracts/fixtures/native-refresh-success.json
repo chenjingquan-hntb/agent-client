@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "message": "",
+  "data": {
+    "access_token": "FIXTURE_ONLY_NATIVE_ACCESS",
+    "token_type": "Bearer",
+    "access_expires_at": 1790896500,
+    "user": {
+      "id": 101,
+      "username": "fixture-user",
+      "role": 1,
+      "status": 1
+    },
+    "session": {
+      "sid": "fixture-session"
+    }
+  }
+}

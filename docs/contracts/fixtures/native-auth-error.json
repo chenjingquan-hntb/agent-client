@@ -1,0 +1,5 @@
+{
+  "success": false,
+  "code": "AUTH_TOKEN_EXPIRED",
+  "message": "fixture: account access expired"
+}

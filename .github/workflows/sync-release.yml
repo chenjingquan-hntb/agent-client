@@ -6,32 +6,60 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Release tag to sync to R2
+        description: Published release tag to sync (strict business channel grammar)
         required: true
         type: string
 
 permissions:
   contents: read
 
+# All stable and RC syncs share one writer queue. Other writers must be disabled
+# before RELEASE_CHANNEL_WRITER=sync-release-only may be configured.
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
 
 jobs:
   sync:
-    name: Sync assets to R2
+    name: Gate and sync assets to own distribution
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      # Never interpolate a tag into shell source (published and manual alike).
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      R2_BUCKET: ${{ secrets.R2_BUCKET }}
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+      SUB2API_RELEASES_BASE_URL: ${{ vars.SUB2API_RELEASES_BASE_URL }}
+      RELEASE_DOWNLOAD_BASE_URL: ${{ format('{0}/', vars.SUB2API_RELEASES_BASE_URL) }}
+      RELEASE_CHANNEL_WRITER: ${{ vars.RELEASE_CHANNEL_WRITER }}
     steps:
-      - name: Resolve release tag
+      # Use current policy, not potentially older policy from the release tag.
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.0"
+
+      - name: Offline policy regression tests
+        run: bun test scripts/release-channel.test.ts
+
+      - name: Classify tag and require explicit distribution ownership
         id: release
+        run: bun scripts/release-channel.ts classify
+
+      - name: Fetch and validate actual GitHub release attributes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="${{ github.event.release.tag_name || inputs.tag }}"
-          if [ -z "$tag" ]; then
-            echo "::error::No release tag provided"
-            exit 1
-          fi
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" > release.json
+          bun scripts/release-channel.ts metadata release.json "$GITHUB_EVENT_PATH"
+          jq -S '{id, tag_name, draft, prerelease, published_at,
+            assets: [.assets[] | {id, name, size, digest}] | sort_by(.name)}' \
+            release.json > release-evidence.json
 
       - name: Install rclone
         run: |
@@ -42,53 +70,96 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p assets
-          gh release download "${{ steps.release.outputs.tag }}" \
-            --dir assets \
-            --repo "${{ github.repository }}"
-          if [ -z "$(ls -A assets)" ]; then
-            echo "::error::Release ${{ steps.release.outputs.tag }} has no assets"
-            exit 1
-          fi
-          ls -lah assets
+          set -euo pipefail
+          mkdir assets
+          gh release download "$RELEASE_TAG" --dir assets --repo "$GITHUB_REPOSITORY"
 
-      - name: Upload assets to R2
+      - name: Read channel evidence, gate, recheck, then upload
         env:
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHANNEL: ${{ steps.release.outputs.channel }}
+          PREFIX: ${{ steps.release.outputs.prefix }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET: ${{ secrets.R2_BUCKET }}
-          # Fork: any S3-compatible store works. Set R2_ENDPOINT (full URL,
-          # e.g. https://s3.cheaprouter.cc) and R2_PROVIDER (e.g. Minio) to
-          # use something other than Cloudflare R2.
-          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
           R2_PROVIDER: ${{ secrets.R2_PROVIDER }}
           RCLONE_CONFIG_R2_TYPE: s3
           RCLONE_CONFIG_R2_NO_CHECK_BUCKET: "true"
         run: |
-          bucket="${R2_BUCKET:-cheaprouter-releases}"
+          set -euo pipefail
+          : "${R2_BUCKET:?Explicit own bucket required}"
+          : "${R2_ACCESS_KEY_ID:?Distribution access key required}"
+          : "${R2_SECRET_ACCESS_KEY:?Distribution secret required}"
           export RCLONE_CONFIG_R2_PROVIDER="${R2_PROVIDER:-Cloudflare}"
           export RCLONE_CONFIG_R2_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID"
           export RCLONE_CONFIG_R2_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY"
-          export RCLONE_CONFIG_R2_ENDPOINT="${R2_ENDPOINT:-https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com}"
-          destination="r2:${bucket}"
+          if [ -n "$R2_ENDPOINT" ]; then
+            export RCLONE_CONFIG_R2_ENDPOINT="$R2_ENDPOINT"
+          else
+            : "${R2_ACCOUNT_ID:?Explicit endpoint or Cloudflare account required}"
+            export RCLONE_CONFIG_R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          fi
+          destination="r2:${R2_BUCKET}"
           immutable="Cache-Control: public, max-age=31536000, immutable"
           fresh="Cache-Control: public, max-age=300, must-revalidate"
 
-          rclone copy assets "$destination" \
-            --s3-no-check-bucket \
-            --exclude appcast.xml \
-            --exclude latest-windows.txt \
-            --exclude 'appcast-windows-*.xml' \
-            --header-upload "$immutable" \
-            --progress
-
-          for pointer in appcast.xml appcast-windows-x86_64.xml \
-            appcast-windows-aarch64.xml latest-windows.txt; do
-            if [ -f "assets/$pointer" ]; then
-              rclone copyto "assets/$pointer" "${destination}/${pointer}" \
-                --s3-no-check-bucket \
-                --header-upload "$fresh" \
-                --progress
+          # Never treat a listing/download error as an empty bucket or bootstrap.
+          # The state binds the current stable tag to every root pointer's SHA256.
+          snapshot() {
+            local evidence="$1"
+            mkdir "$evidence"
+            rclone lsjson "$destination" --recursive --files-only \
+              --s3-no-check-bucket > "$evidence/objects.json"
+            if [ "$CHANNEL" = stable ]; then
+              for pointer in release-channel-state.json appcast.xml \
+                appcast-windows-x86_64.xml appcast-windows-aarch64.xml latest-windows.txt; do
+                if jq -e --arg path "$pointer" 'any(.[]; .Path == $path and .IsDir == false)' \
+                  "$evidence/objects.json" > /dev/null; then
+                  rclone copyto "${destination}/${pointer}" "$evidence/$pointer" \
+                    --s3-no-check-bucket
+                fi
+              done
             fi
-          done
+          }
+
+          snapshot evidence
+          bun scripts/release-channel.ts plan release.json assets \
+            evidence/objects.json evidence plan
+
+          # Re-fetch metadata AND storage evidence before any write. Snapshot
+          # checks are not a cross-writer CAS; exclusive ownership is required.
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" > release-recheck.json
+          # Ignore volatile download_count (our own download changes it).
+          jq -S '{id, tag_name, draft, prerelease, published_at,
+            assets: [.assets[] | {id, name, size, digest}] | sort_by(.name)}' \
+            release-recheck.json > release-evidence-recheck.json
+          cmp release-evidence.json release-evidence-recheck.json
+          bun scripts/release-channel.ts metadata release-recheck.json "$GITHUB_EVENT_PATH"
+          snapshot evidence-recheck
+          bun scripts/release-channel.ts plan release-recheck.json assets \
+            evidence-recheck/objects.json evidence-recheck plan-recheck
+          cmp plan/plan.json plan-recheck/plan.json
+
+          # Only allowlisted exact-version files; immutable collisions are fatal.
+          rclone copy assets "${destination}/${PREFIX}" \
+            --s3-no-check-bucket --immutable \
+            --files-from-raw plan/immutable-files.txt \
+            --header-upload "$immutable" --progress
+
+          # RC pointer-named assets are immutable too, and ONLY under this RC tag.
+          while IFS= read -r pointer; do
+            if [ "$CHANNEL" = prerelease ]; then
+              rclone copyto "assets/$pointer" "${destination}/${PREFIX}${pointer}" \
+                --s3-no-check-bucket --immutable --header-upload "$immutable" --progress
+            else
+              rclone copyto "assets/$pointer" "${destination}/${pointer}" \
+                --s3-no-check-bucket --ignore-times --header-upload "$fresh" --progress
+            fi
+          done < plan/pointer-files.txt
+
+          # Commit evidence last. A partial failure leaves stale/mismatched state
+          # and all subsequent stable syncs refuse, rather than guess/recover.
+          if [ "$CHANNEL" = stable ]; then
+            rclone copyto plan/release-channel-state.json \
+              "${destination}/release-channel-state.json" \
+              --s3-no-check-bucket --ignore-times --header-upload "$fresh" --progress
+          fi

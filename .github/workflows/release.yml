@@ -15,6 +15,19 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
+  # Public, confirmed site metadata only; unset vars fail the preflight.
+  SUB2API_SITE_RELEASE: ${{ vars.SUB2API_SITE_RELEASE }}
+  SUB2API_BRAND_NAME: ${{ vars.SUB2API_BRAND_NAME }}
+  SUB2API_BRAND_BUNDLE_ID: ${{ vars.SUB2API_BRAND_BUNDLE_ID }}
+  SUB2API_BRAND_WEBSITE: ${{ vars.SUB2API_BRAND_WEBSITE }}
+  SUB2API_MANAGED_SERVICE_URL: ${{ vars.SUB2API_MANAGED_SERVICE_URL }}
+  SUB2API_MANAGED_SERVICE_ALT_URLS: ${{ vars.SUB2API_MANAGED_SERVICE_ALT_URLS }}
+  SUB2API_RELEASES_BASE_URL: ${{ vars.SUB2API_RELEASES_BASE_URL }}
+  SUB2API_DATA_DIR_NAME: ${{ vars.SUB2API_DATA_DIR_NAME }}
+  SUB2API_PLATFORM_DATA_DIR_NAME: ${{ vars.SUB2API_PLATFORM_DATA_DIR_NAME }}
+  SUB2API_WINDOWS_APP_ID: ${{ vars.SUB2API_WINDOWS_APP_ID }}
+  SUB2API_PUBLISHER: ${{ vars.SUB2API_PUBLISHER }}
+  SUB2API_SPARKLE_PUBLIC_KEY: ${{ vars.SUB2API_SPARKLE_PUBLIC_KEY }}
 
 jobs:
   version:
@@ -27,6 +40,11 @@ jobs:
       published: ${{ steps.published.outputs.published }}
     steps:
       - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Site release preflight (before any build)
+        run: bun scripts/brand-config.ts --require-site --platform all
 
       - name: Resolve version from Cargo.toml
         id: resolve
@@ -102,7 +120,10 @@ jobs:
       # release's bundles are still sitting in `target/release` when this one
       # starts. Cargo does not own them, so nothing else clears them.
       - name: Clear stale bundles
-        run: Remove-Item -Force -ErrorAction SilentlyContinue target/release/cheaprouter-*.zip, target/release/CheapRouter-*-Setup.exe
+        run: Remove-Item -Force -ErrorAction SilentlyContinue target/release/*-*-pc-windows-msvc.zip, target/release/*-*-Setup.exe
+
+      - name: Site release preflight
+        run: bun scripts/brand-config.ts --require-site --platform windows --version ${{ needs.version.outputs.version }}
 
       - name: Bundle
         env:
@@ -114,8 +135,8 @@ jobs:
         with:
           name: windows-x86_64
           path: |
-            target/release/cheaprouter-${{ needs.version.outputs.version }}-x86_64-pc-windows-msvc.zip
-            target/release/CheapRouter-${{ needs.version.outputs.version }}-x86_64-Setup.exe
+            target/release/*-${{ needs.version.outputs.version }}-x86_64-pc-windows-msvc.zip
+            target/release/*-${{ needs.version.outputs.version }}-x86_64-Setup.exe
           if-no-files-found: error
 
   windows-arm64:
@@ -152,7 +173,10 @@ jobs:
       # release's bundles are still sitting in `target/release` when this one
       # starts. Cargo does not own them, so nothing else clears them.
       - name: Clear stale bundles
-        run: Remove-Item -Force -ErrorAction SilentlyContinue target/release/cheaprouter-*.zip, target/release/CheapRouter-*-Setup.exe
+        run: Remove-Item -Force -ErrorAction SilentlyContinue target/release/*-*-pc-windows-msvc.zip, target/release/*-*-Setup.exe
+
+      - name: Site release preflight
+        run: bun scripts/brand-config.ts --require-site --platform windows --version ${{ needs.version.outputs.version }}
 
       - name: Bundle
         env:
@@ -164,8 +188,8 @@ jobs:
         with:
           name: windows-arm64
           path: |
-            target/release/cheaprouter-${{ needs.version.outputs.version }}-aarch64-pc-windows-msvc.zip
-            target/release/CheapRouter-${{ needs.version.outputs.version }}-aarch64-Setup.exe
+            target/release/*-${{ needs.version.outputs.version }}-aarch64-pc-windows-msvc.zip
+            target/release/*-${{ needs.version.outputs.version }}-aarch64-Setup.exe
           if-no-files-found: error
 
   macos:
@@ -196,6 +220,9 @@ jobs:
           key: macos-latest-rust-1.96.0-release-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
             macos-latest-rust-1.96.0-release-
+
+      - name: Site release preflight
+        run: bun scripts/brand-config.ts --require-site --platform macos --version ${{ needs.version.outputs.version }}
 
       - name: Import Apple Developer Certificate
         env:
@@ -257,9 +284,9 @@ jobs:
         with:
           name: macos
           path: |
-            dist/CheapRouter-${{ needs.version.outputs.version }}.dmg
-            dist/CheapRouter-${{ needs.version.outputs.version }}.md
-            dist/CheapRouter-${{ needs.version.outputs.version }}.zip
+            dist/*-${{ needs.version.outputs.version }}.dmg
+            dist/*-${{ needs.version.outputs.version }}.md
+            dist/*-${{ needs.version.outputs.version }}.zip
             dist/appcast.xml
           if-no-files-found: error
 
@@ -298,6 +325,9 @@ jobs:
 
       # Signed here rather than on the Windows runners: this is the only job
       # that holds both installers, and the signing key stays in one place.
+      - name: Site release preflight
+        run: bun scripts/brand-config.ts --require-site --platform windows --version ${{ needs.version.outputs.version }}
+
       - name: Sign the Windows update feeds
         env:
           VERSION: ${{ needs.version.outputs.version }}
@@ -307,7 +337,7 @@ jobs:
           # their entries; a first run simply starts from nothing.
           for arch in x86_64 aarch64; do
             curl -fsSL --max-time 30 \
-              "https://releases.waku.sh/appcast-windows-$arch.xml" \
+              "$SUB2API_RELEASES_BASE_URL/appcast-windows-$arch.xml" \
               -o "artifacts/appcast-windows-$arch.xml" || true
           done
           bun scripts/appcast-windows.ts artifacts "$VERSION"

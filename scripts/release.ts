@@ -12,6 +12,7 @@ import { tmpdir } from "node:os";
 import { dirname, extname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { defaultDownloadUrlPrefix, generateAppcast } from "./appcast";
+import { assertStableClientVersion, releaseDownloadPrefix, resolveBrandConfig } from "./brand-config.ts";
 import { extractReleaseNotes } from "./changelog";
 
 // Fork change: user-facing names come from the brand. Keep in step with
@@ -20,7 +21,8 @@ import { extractReleaseNotes } from "./changelog";
 // `packageName` and the helper executable names stay as upstream: they are
 // cargo package/binary names, not product names, and renaming them would
 // ripple through the dev scripts for no user-visible gain.
-const appName = process.env.SUB2API_BRAND_NAME || "CheapRouter";
+const brand = resolveBrandConfig(process.env, { platform: "macos" });
+const appName = brand.name;
 const executableName = appName;
 const jsReplExecutableName = "waku_js_repl";
 const daemonExecutableName = "waku-daemon";
@@ -37,7 +39,7 @@ Usage:
 The default run builds a signed, notarized DMG, packages the Sparkle update
 archive, regenerates the signed appcast (with binary deltas against recent
 releases), and uploads everything to Cloudflare R2 — the bucket behind
-https://releases.waku.sh. One-time setup lives in RELEASING.md.
+the explicitly configured release host. One-time setup lives in RELEASING.md.
 
 Options:
   --local                       Build, notarize, and write the DMG + zip
@@ -158,14 +160,20 @@ const force = values.force ?? false;
 // weaken signing imply --local.
 const publishing = !localOnly && !adhoc && !skipNotarize;
 
+if (brand.siteRelease && !localOnly) {
+  throw new Error("Site releases require --local; sync-release is the exclusive publishing writer. Direct publishing is disabled.");
+}
+if (brand.siteRelease && values["skip-build"]) {
+  throw new Error("Site releases cannot --skip-build: compiled identity and update key must match current configuration.");
+}
+
 const r2Remote = process.env.WAKU_R2_REMOTE ?? "r2";
 const r2Bucket = process.env.WAKU_R2_BUCKET ?? "cheaprouter-releases";
 const r2Destination = `${r2Remote}:${r2Bucket}`;
 // A bucket-scoped R2 API token cannot create buckets, and rclone otherwise
 // checks/creates one before writing. The bucket must already exist.
 const rcloneFlags = ["--s3-no-check-bucket"];
-const downloadUrlPrefix =
-  process.env.WAKU_DOWNLOAD_URL_PREFIX ?? defaultDownloadUrlPrefix;
+const downloadUrlPrefix = releaseDownloadPrefix(process.env, "macos");
 const historyCount = Number(process.env.WAKU_HISTORY_COUNT ?? "15");
 const skipHistory = process.env.WAKU_NO_HISTORY === "1";
 
@@ -229,6 +237,7 @@ if (!cargoPackage) {
 }
 
 const version = cargoPackage.version;
+assertStableClientVersion(version);
 const shortVersion = version.split("-", 1)[0];
 const buildNumber = explicitBuildNumber ?? derivedBuildNumber(version);
 const dmgName = `${appName}-${version}.dmg`;
@@ -257,7 +266,7 @@ if (publishing) {
       throw new Error(
         `R2 bucket "${r2Bucket}" does not exist on remote "${r2Remote}". ` +
           "Create it in the Cloudflare dashboard and attach the " +
-          "releases.waku.sh custom domain (see RELEASING.md), then re-run.",
+          "configured custom domain (see RELEASING.md), then re-run.",
       );
     }
     throw new Error(`Cannot reach ${r2Destination}: ${detail}`);

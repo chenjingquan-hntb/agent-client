@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "message": "",
+  "data": {
+    "id": 101,
+    "username": "fixture-user",
+    "role": 1,
+    "status": 1,
+    "quota": 500000,
+    "group": "fixture-standard"
+  }
+}
