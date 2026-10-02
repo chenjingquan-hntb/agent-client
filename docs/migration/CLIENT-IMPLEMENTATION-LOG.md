@@ -76,3 +76,9 @@ cargo test --offline --locked --release -p sub2api --test identity_config
 阶段补充：Rust 已于 2026-10-02 在隔离官方 `rust:1.96.0-bookworm` 容器实际完成：`cargo test --locked -p sub2api --lib` 为 323 passed / 0 failed；debug 与 release 的 `identity_config` 基线各 4 passed / 0 failed。随后执行四组 synthetic 编译环境（全部 unset、仅 release bundle ID、home+共同平台目录、再加 debug identity/debug 平台目录），每组 debug/release 均 4 passed / 0 failed，共 32 个配置测试通过。
 
 阶段复核发现并修正两项门禁缺陷：`vX.Y.Z-cjq.N` 现在与 RC 一样归入隔离 prerelease 命名空间，不再错误写稳定根路径；R2 endpoint 与下载 URL 拒绝旧 CheapRouter/Waku host。相关 TS 回归测试现为 76 pass / 0 fail、325 assertions；完整阶段入口复跑通过。
+
+## 已合并基础阶段与后续执行（2026-10-02）
+
+PR #1 已在用户要求继续后正常合并到 `main`：合并时间 `2026-10-02T06:08:58Z`，merge SHA `111d48ba31017e9b01323b0f9685643952c23203`。已验证 PR head `147d0f2513a5bcc43e70b008f14724c0d98299c4` 的 `pull_request` workflow `36961036557` 为 success，macOS/Windows 的 Rust 测试及 release identity_config 均通过，macOS generated checks 亦通过。前文未提交、未推送、Rust 未执行等陈述仅描述各记录形成时的阶段，不是最新状态。详见[阶段报告](CLIENT-PHASE-TEST-REPORT.md)。
+
+后续写集保持客户端：补充使用本机 loopback 与合成凭据的真实 curl 请求边界回归，并只读核对 server T007。未授权绕过保护、生产上线或擅填正式身份；不把基础 PR 合并当作 M-003 完整兼容或 M-006 首发验收。

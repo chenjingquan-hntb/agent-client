@@ -31,3 +31,29 @@ cargo test --locked --release -p sub2api --test identity_config
 - 未执行真实登录、账户数据/key 映射、provider/CLI/SSE、更新验签、备份恢复或支付；M-006 仍 TODO。
 - 未启动 watcher、未退出 Debug app、未做视觉测试、未运行打包/发布、未读取凭据或私钥。
 - 通过阶段测试不表示可发行；自有正式品牌、域名、安装身份、更新公钥仍需显式配置与后续验收。
+
+## 原生 CI 与合并补充（2026-10-02）
+
+- PR #1 测试提交：`147d0f2513a5bcc43e70b008f14724c0d98299c4`。
+- PR workflow：`36961036557`，event=`pull_request`，conclusion=`success`。
+- macOS job `110694551201`：SUCCESS，完成于 `2026-10-02T04:05:59Z`。
+- Windows job `110694551324`：SUCCESS，完成于 `2026-10-02T04:17:25Z`。
+- 两个平台均通过阶段入口、`cargo test --locked` 和 `cargo test --locked -p sub2api --test identity_config --release`；macOS 另通过 generated protocol/browser client checks。
+- 重复 push workflow `36961032706` 已取消，不是测试失败；取消状态不是成功证据。
+- 用户要求继续后，PR #1 于 `2026-10-02T06:08:58Z` 正常合并；merge commit=`111d48ba31017e9b01323b0f9685643952c23203`。未使用 admin override、force push、tag 或发布操作。
+- 合并后的 main workflow `36972177800` 已触发；本补充记录时仍在运行，不能将 PR 检查结果冒充该 run 的最终结果。
+
+本补充只更新代码/CI/合并证据；M-003 完整桥接与 M-006 运行、恢复和首发仍未验收。
+
+## 后续客户端 HTTP 边界回归（2026-10-02）
+
+分支：`feat/client-http-boundary-tests`，以已合并基础 `111d48ba` 为起点。新增 `crates/sub2api/tests/http_boundary.rs`，不修改生产模块、依赖或默认端点。测试使用 `127.0.0.1:0`、现有真实 curl transport、合成凭据和共享 fixtures；服务端线程、socket I/O 及请求尺寸有界并回收。
+
+- `cargo test --offline --locked -p sub2api --test http_boundary`：**7 passed / 0 failed**；子代理默认并行与单线程各通过，主线程默认并行复核通过。
+- `cargo test --offline --locked -p sub2api --lib`：主线程复核 **323 passed / 0 failed**。
+- `bun scripts/validate-client-phase.ts`：主线程复核 **291 pass / 0 fail / 794 assertions**；`git diff --check` 通过。
+- Rust 环境：既有官方 `rust:1.96.0-bookworm` 镜像、网络禁用、仓库只读挂载、独立既有 Cargo/target volumes；loopback 仅在容器内部。
+- 覆盖：exchange/refresh 的真实 method/path/JSON/header 与合法解析；native envelope 拒绝；refresh 必需字段/非空/正期限；401/403 与 429/502 和业务 refresh reason 分类；畸形 JSON/非结构化 HTTP 错误不回显合成令牌；未接入连接时 fixture server 可取消和回收。
+- `rustfmt` 未执行：镜像未安装该 component；没有联网安装。不将此项记为通过。
+
+本次真实 HTTP transport 测试仅对接 loopback 合成 server，不是 New API 联调；新增测试的 macOS/Windows 原生 CI 尚待该分支 workflow 运行。原生应用、server bridge、provider/SSE、实际安装更新、签名及生产验收均未因此完成。服务端只读核对结论和最小后续见 [下一阶段](CLIENT-NEXT-STAGE.md)。
