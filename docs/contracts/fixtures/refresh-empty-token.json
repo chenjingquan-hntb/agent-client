@@ -1,0 +1,9 @@
+{
+  "code": 0,
+  "message": "",
+  "data": {
+    "access_token": "",
+    "refresh_token": "FIXTURE_ONLY_ACCOUNT_REFRESH",
+    "expires_in": 900
+  }
+}

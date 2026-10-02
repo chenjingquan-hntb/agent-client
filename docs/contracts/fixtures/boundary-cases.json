@@ -1,0 +1,274 @@
+{
+  "note": "Independent offline specification examples, not runtime/server captures.",
+  "bad_envelopes": [
+    {
+      "name": "missing-code",
+      "body": {
+        "message": "",
+        "data": {
+          "id": 101
+        }
+      }
+    },
+    {
+      "name": "string-code",
+      "body": {
+        "code": "0",
+        "message": "",
+        "data": {
+          "id": 101
+        }
+      }
+    },
+    {
+      "name": "null-code",
+      "body": {
+        "code": null,
+        "message": "",
+        "data": {
+          "id": 101
+        }
+      }
+    },
+    {
+      "name": "bool-code",
+      "body": {
+        "code": false,
+        "message": "",
+        "data": {
+          "id": 101
+        }
+      }
+    },
+    {
+      "name": "native-success-false-with-data",
+      "body": {
+        "success": false,
+        "message": "rejected",
+        "data": {
+          "id": 101
+        }
+      }
+    },
+    {
+      "name": "array-not-envelope",
+      "body": []
+    }
+  ],
+  "bad_refresh": [
+    {
+      "name": "missing-access",
+      "body": {
+        "code": 0,
+        "data": {
+          "refresh_token": "FIXTURE_ONLY_ACCOUNT_REFRESH",
+          "expires_in": 900
+        }
+      }
+    },
+    {
+      "name": "missing-refresh",
+      "body": {
+        "code": 0,
+        "data": {
+          "access_token": "FIXTURE_ONLY_ACCOUNT_ACCESS",
+          "expires_in": 900
+        }
+      }
+    },
+    {
+      "name": "missing-relative-expiry",
+      "body": {
+        "code": 0,
+        "data": {
+          "access_token": "FIXTURE_ONLY_ACCOUNT_ACCESS",
+          "refresh_token": "FIXTURE_ONLY_ACCOUNT_REFRESH",
+          "access_expires_at": 1790896500
+        }
+      }
+    },
+    {
+      "name": "null-expiry",
+      "body": {
+        "code": 0,
+        "data": {
+          "access_token": "FIXTURE_ONLY_ACCOUNT_ACCESS",
+          "refresh_token": "FIXTURE_ONLY_ACCOUNT_REFRESH",
+          "expires_in": null
+        }
+      }
+    }
+  ],
+  "pagination": {
+    "pages": [
+      {
+        "page": 1,
+        "page_size": 2,
+        "total": 3,
+        "items": [
+          {
+            "id": 401,
+            "key": "FIXTURE_ONLY_MASKED_A**"
+          },
+          {
+            "id": 402,
+            "key": "FIXTURE_ONLY_MASKED_B**"
+          }
+        ]
+      },
+      {
+        "page": 2,
+        "page_size": 2,
+        "total": 3,
+        "items": [
+          {
+            "id": 403,
+            "key": "FIXTURE_ONLY_MASKED_C**"
+          }
+        ]
+      }
+    ],
+    "expected_ids": [
+      401,
+      402,
+      403
+    ],
+    "stalled_pages": [
+      {
+        "page": 1,
+        "page_size": 2,
+        "total": 3,
+        "items": [
+          {
+            "id": 401
+          },
+          {
+            "id": 402
+          }
+        ]
+      },
+      {
+        "page": 2,
+        "page_size": 2,
+        "total": 3,
+        "items": []
+      }
+    ],
+    "group_bindings": [
+      {
+        "client_group_id": 101,
+        "native_group": "fixture-standard"
+      },
+      {
+        "client_group_id": 102,
+        "native_group": "fixture-subscription"
+      }
+    ]
+  },
+  "account_error_cases": [
+    {
+      "status": 401,
+      "code": 401,
+      "reason": "TOKEN_REVOKED",
+      "auth_rejection": true
+    },
+    {
+      "status": 200,
+      "code": 400,
+      "reason": "REFRESH_TOKEN_INVALID",
+      "auth_rejection": true
+    },
+    {
+      "status": 429,
+      "code": 429,
+      "reason": "RATE_LIMITED",
+      "auth_rejection": false
+    },
+    {
+      "status": 503,
+      "code": 503,
+      "reason": "SERVICE_UNAVAILABLE",
+      "auth_rejection": false
+    }
+  ],
+  "pay_fallback": {
+    "initial_statuses": [
+      400,
+      401
+    ],
+    "no_fallback_statuses": [
+      403,
+      429,
+      500,
+      502
+    ],
+    "request_headers": {
+      "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS"
+    },
+    "fallback_query": {
+      "token": "FIXTURE_ONLY_ACCOUNT_ACCESS"
+    }
+  },
+  "pay_statuses": [
+    {
+      "status": "PENDING",
+      "paymentSuccess": false,
+      "rechargeSuccess": false,
+      "terminal": false,
+      "settled": false
+    },
+    {
+      "status": "PAID",
+      "paymentSuccess": true,
+      "rechargeSuccess": false,
+      "terminal": false,
+      "settled": false
+    },
+    {
+      "status": "COMPLETED",
+      "paymentSuccess": true,
+      "rechargeSuccess": true,
+      "terminal": true,
+      "settled": true
+    },
+    {
+      "status": "FAILED",
+      "paymentSuccess": false,
+      "rechargeSuccess": false,
+      "terminal": true,
+      "settled": false
+    },
+    {
+      "status": "CANCELLED",
+      "paymentSuccess": false,
+      "rechargeSuccess": false,
+      "terminal": true,
+      "settled": false
+    },
+    {
+      "status": "EXPIRED",
+      "paymentSuccess": false,
+      "rechargeSuccess": false,
+      "terminal": true,
+      "settled": false
+    }
+  ],
+  "nullable_user": {
+    "id": 101,
+    "allowed_groups": null
+  },
+  "nullable_page": {
+    "items": null,
+    "total": 0
+  },
+  "null_catalog_price": {
+    "input_per_mtok_usd": null,
+    "output_per_mtok_usd": null,
+    "cache_write_per_mtok_usd": 0.25,
+    "cache_read_per_mtok_usd": 0.02,
+    "per_request_usd": null,
+    "per_image_usd": null,
+    "source": "fixture-reference",
+    "has_reference": true
+  }
+}

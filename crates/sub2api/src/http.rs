@@ -47,8 +47,17 @@ impl Response {
         if !self.is_success() {
             return Err(ApiError::from_body(self.status, &self.body).into());
         }
-        serde_json::from_str(&self.body)
-            .with_context(|| format!("could not parse response body: {}", truncate(&self.body, 200)))
+        serde_json::from_str(&self.body).map_err(|error| {
+            // Successful auth responses can contain access/refresh tokens and
+            // gateway keys. Neither the body nor serde's value-bearing error
+            // may escape through UI/log error chains.
+            anyhow!(
+                "could not decode JSON response (HTTP {}, line {}, column {})",
+                self.status,
+                error.line(),
+                error.column(),
+            )
+        })
     }
 }
 
@@ -90,7 +99,7 @@ impl ApiError {
             reason: field("reason").unwrap_or_default(),
             message: field("message")
                 .or_else(|| field("error"))
-                .unwrap_or_else(|| truncate(body, 200)),
+                .unwrap_or_else(|| "the service rejected the request".to_owned()),
         }
     }
 
@@ -116,7 +125,11 @@ impl std::fmt::Display for ApiError {
         if (200..300).contains(&self.status) {
             write!(f, "{}", self.message)?;
         } else {
-            write!(f, "request failed with status {}: {}", self.status, self.message)?;
+            write!(
+                f,
+                "request failed with status {}: {}",
+                self.status, self.message
+            )?;
         }
         if !self.reason.is_empty() {
             write!(f, " ({})", self.reason)?;
@@ -523,6 +536,39 @@ mod tests {
             .config();
         assert!(config.contains(r#"request = "PUT""#));
         assert!(!config.contains(r#"request = "POST""#));
+    }
+
+    #[test]
+    fn json_decode_errors_do_not_echo_credential_bodies_or_values() {
+        for body in [
+            r#"{"access_token":"fixture-access","refresh_token":"fixture-refresh", broken}"#,
+            r#"{"access_token":"fixture-access","code":"fixture-secret-value"}"#,
+        ] {
+            let response = Response {
+                status: 200,
+                body: body.to_owned(),
+            };
+            let error = response
+                .json::<crate::client::Envelope<serde_json::Value>>()
+                .expect_err("malformed or incompatible response");
+            let rendered = format!("{error:#}");
+            assert!(rendered.contains("HTTP 200"));
+            assert!(!rendered.contains("fixture-access"));
+            assert!(!rendered.contains("fixture-refresh"));
+            assert!(!rendered.contains("fixture-secret-value"));
+        }
+    }
+
+    #[test]
+    fn unstructured_http_errors_do_not_echo_the_body() {
+        for body in [
+            "proxy response with fixture-refresh",
+            r#"{"refresh_token":"fixture-refresh"}"#,
+        ] {
+            let error = ApiError::from_body(502, body);
+            assert_eq!(error.status, 502);
+            assert!(!format!("{error}").contains("fixture-refresh"));
+        }
     }
 
     #[test]

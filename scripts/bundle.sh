@@ -2,6 +2,16 @@
 set -eu
 
 profile="${1:-debug}"
+# Validate site release metadata before cargo, keychain lookup or downloads.
+# Development/debug behavior stays untouched unless explicitly opted in.
+site_metadata=""
+if [ "${SUB2API_SITE_RELEASE:-0}" != "0" ] && [ -n "${SUB2API_SITE_RELEASE:-}" ]; then
+  site_metadata=$(bun scripts/brand-config.ts --platform macos --shell)
+  if [ "$profile" != "release" ]; then
+    echo "SUB2API_SITE_RELEASE=1 requires the release profile" >&2
+    exit 1
+  fi
+fi
 cargo_target_dir="${CARGO_TARGET_DIR:-target}"
 debug_identity_cache=".waku-cache/codesign/debug-identity"
 codesign_identity_from_environment=0
@@ -44,15 +54,13 @@ case "$profile" in
     icon_file="AppIconDev.icns"
     ;;
   release)
-    # Fork change: the release bundle carries the brand, matching what
-    # scripts/release.ts expects to find in target/release. Keep the fallback
-    # chain identical to release.ts and build.rs. The bundle identifier stays
-    # upstream's `sh.waku` on purpose (see crates/waku-protocol/src/identity.rs),
-    # and the debug bundle keeps upstream's "Waku Debug" name because the dev
-    # tooling (dev.ts, delete-debug-app.ts) is keyed to it.
     app_name="${SUB2API_BRAND_NAME:-CheapRouter}"
     helper_name="$app_name Computer Use"
-    bundle_identifier="sh.waku"
+    bundle_identifier="${SUB2API_BRAND_BUNDLE_ID:-sh.waku}"
+    if [ -n "$site_metadata" ]; then
+      eval "$site_metadata"
+      helper_name="$app_name Computer Use"
+    fi
     icon_file="AppIcon.icns"
     ;;
   *)
@@ -184,6 +192,17 @@ plutil -replace CFBundleDisplayName -string "$app_name" "$contents/Info.plist"
 plutil -replace CFBundleExecutable -string "$app_name" "$contents/Info.plist"
 plutil -replace CFBundleIdentifier -string "$bundle_identifier" "$contents/Info.plist"
 plutil -replace CFBundleName -string "$app_name" "$contents/Info.plist"
+if [ "${SUB2API_SITE_RELEASE:-0}" = "1" ]; then
+  plutil -replace SUFeedURL -string "$site_feed_url" "$contents/Info.plist"
+  plutil -replace SUPublicEDKey -string "$site_public_key" "$contents/Info.plist"
+else
+  if [ -n "${SUB2API_RELEASES_BASE_URL:-}" ]; then
+    plutil -replace SUFeedURL -string "${SUB2API_RELEASES_BASE_URL%/}/appcast.xml" "$contents/Info.plist"
+  fi
+  if [ -n "${SUB2API_SPARKLE_PUBLIC_KEY:-}" ]; then
+    plutil -replace SUPublicEDKey -string "$SUB2API_SPARKLE_PUBLIC_KEY" "$contents/Info.plist"
+  fi
+fi
 cp -R "$cached_helper_bundle" "$helper_bundle"
 # Finder info and resource forks on copied resources make codesign reject the
 # bundle as "detritus"; strip extended attributes before signing.

@@ -22,7 +22,7 @@ import { createPrivateKey, sign } from "node:crypto";
 import { readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-import { defaultDownloadUrlPrefix } from "./appcast.ts";
+import { assertSiteEnclosureUrl, assertStableClientVersion, releaseDownloadPrefix, resolveBrandConfig } from "./brand-config.ts";
 
 const projectRoot = resolve(import.meta.dir, "..");
 
@@ -61,6 +61,8 @@ export function publicKeyBase64(privateKey: ReturnType<typeof createPrivateKey>)
 
 /** SUPublicEDKey, the one value both platforms have to agree on. */
 export async function appPublicKey(): Promise<string> {
+  const brand = resolveBrandConfig(process.env, { platform: "windows" });
+  if (brand.publicKey) return brand.publicKey;
   const plist = await Bun.file(join(projectRoot, "resources/Info.plist")).text();
   const key = plist
     .split("<key>SUPublicEDKey</key>")[1]
@@ -101,11 +103,9 @@ export function mergeItems(
 }
 
 export function compareVersions(left: string, right: string): number {
-  const fields = (version: string) =>
-    version
-      .split(/[-+]/)[0]!
-      .split(".")
-      .map((field) => Number.parseInt(field, 10) || 0);
+  assertStableClientVersion(left);
+  assertStableClientVersion(right);
+  const fields = (version: string) => version.split(".").map(Number);
   const a = fields(left);
   const b = fields(right);
   for (let index = 0; index < Math.max(a.length, b.length); index += 1) {
@@ -143,6 +143,7 @@ export function parseAppcast(xml: string): AppcastItem[] {
 }
 
 export function renderAppcast(arch: Architecture, items: AppcastItem[]): string {
+  const brand = resolveBrandConfig(process.env, { platform: "windows" });
   const entries = items
     .map(
       (item) => `    <item>
@@ -158,7 +159,7 @@ export function renderAppcast(arch: Architecture, items: AppcastItem[]): string 
   return `<?xml version="1.0" encoding="utf-8"?>
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
   <channel>
-    <title>CheapRouter (Windows ${arch})</title>
+    <title>${escapeXml(brand.name)} (Windows ${arch})</title>
 ${entries}
   </channel>
 </rss>
@@ -171,13 +172,17 @@ export async function generateWindowsAppcasts(
   downloadUrlPrefix: string,
   pubDate: string,
 ): Promise<string[]> {
+  assertStableClientVersion(version);
+  const brand = resolveBrandConfig(process.env, { platform: "windows", version });
+  if (brand.siteRelease && downloadUrlPrefix !== releaseDownloadPrefix(process.env, "windows")) throw new Error("Site appcast download prefix must match SUB2API_RELEASES_BASE_URL.");
+  // Configuration must pass before accessing signing material.
+  const expected = await appPublicKey();
   const secret = process.env.SPARKLE_PRIVATE_KEY?.trim();
   if (!secret) {
     throw new Error("SPARKLE_PRIVATE_KEY is required to sign the Windows feed.");
   }
   const privateKey = privateKeyFromSparkleSecret(secret);
   const derived = publicKeyBase64(privateKey);
-  const expected = await appPublicKey();
   if (derived !== expected) {
     throw new Error(
       `SPARKLE_PRIVATE_KEY does not match SUPublicEDKey (${expected}); ` +
@@ -188,7 +193,7 @@ export async function generateWindowsAppcasts(
   const present = new Set(readdirSync(assetsDir));
   const written: string[] = [];
   for (const arch of architectures) {
-    const installer = `CheapRouter-${version}-${arch}-Setup.exe`;
+    const installer = `${brand.name}-${version}-${arch}-Setup.exe`;
     if (!present.has(installer)) {
       console.warn(`No ${installer} in ${assetsDir}; leaving that feed alone.`);
       continue;
@@ -207,12 +212,18 @@ export async function generateWindowsAppcasts(
     const previous = (await Bun.file(feedPath).exists())
       ? parseAppcast(await Bun.file(feedPath).text())
       : [];
+    if (brand.siteRelease) {
+      for (const historical of previous) {
+        assertStableClientVersion(historical.version);
+        assertSiteEnclosureUrl(historical.url, downloadUrlPrefix);
+      }
+    }
     await Bun.write(feedPath, renderAppcast(arch, mergeItems(previous, [item])));
     written.push(feedPath);
     console.log(`Wrote ${feedPath} (${item.length} bytes signed)`);
   }
   if (written.length === 0) {
-    throw new Error(`No CheapRouter-${version}-<arch>-Setup.exe found in ${assetsDir}`);
+    throw new Error(`No ${brand.name}-${version}-<arch>-Setup.exe found in ${assetsDir}`);
   }
   return written;
 }
@@ -226,7 +237,7 @@ if (import.meta.main) {
   await generateWindowsAppcasts(
     assetsDir,
     version,
-    process.env.WAKU_DOWNLOAD_URL_PREFIX ?? defaultDownloadUrlPrefix,
+    releaseDownloadPrefix(process.env, "windows"),
     new Date().toUTCString(),
   );
 }

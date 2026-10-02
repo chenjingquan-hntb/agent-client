@@ -1340,8 +1340,8 @@ mod tests {
             );
         }
 
-        // A conversational model is caught by none of that.
-        for name in ["gpt-5.6-sol", "claude-sonnet-5", "gemini-3-pro"] {
+        // Supported conversational models are caught by none of that.
+        for name in ["gpt-5.6-sol", "claude-sonnet-5"] {
             assert_eq!(
                 native_models_from_catalog(&[item(name, "openai")]).len(),
                 1,

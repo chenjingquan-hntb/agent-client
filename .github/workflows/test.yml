@@ -34,6 +34,11 @@ jobs:
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
 
+      # Validate offline on both platforms; Windows discovers Git for Windows
+      # Bash, and macOS resolves Bash from PATH. Shell checks only parse (-n).
+      - name: Validate offline client phase
+        run: bun scripts/validate-client-phase.ts
+
       - name: Cache Cargo
         uses: actions/cache@v6
         with:
@@ -47,6 +52,9 @@ jobs:
 
       - name: Run tests
         run: cargo test --locked
+
+      - name: Test sub2api identity configuration (release profile)
+        run: cargo test --locked -p sub2api --test identity_config --release
 
       # The generated protocol and browser client are platform-independent, so
       # one runner is enough to catch a drifted checked-in artifact.

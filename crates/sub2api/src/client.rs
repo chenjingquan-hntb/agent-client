@@ -13,7 +13,8 @@ use crate::http::{Request, Response};
 /// Envelope every endpoint returns.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Envelope<T> {
-    #[serde(default)]
+    // Required contract discriminator: New API's native `success` envelope
+    // must not be mistaken for a successful managed-service response.
     pub code: i64,
     #[serde(default)]
     pub message: String,
@@ -175,7 +176,11 @@ impl SubscriptionProgress {
             .as_ref()
             .map(|group| group.name.clone())
             .filter(|name| !name.trim().is_empty())
-            .or_else(|| self.progress.as_ref().map(|progress| progress.group_name.clone()))
+            .or_else(|| {
+                self.progress
+                    .as_ref()
+                    .map(|progress| progress.group_name.clone())
+            })
             .unwrap_or_default()
     }
 
@@ -435,10 +440,17 @@ fn normalize_group_status(value: &serde_json::Value) -> GroupStatusItem {
     let nested = |key: &str| summary.and_then(|summary| summary.get(key));
     GroupStatusItem {
         group_id: number([value.get("group_id"), nested("group_id")])
-            .or_else(|| group.and_then(|group| group.get("id")).and_then(serde_json::Value::as_f64))
+            .or_else(|| {
+                group
+                    .and_then(|group| group.get("id"))
+                    .and_then(serde_json::Value::as_f64)
+            })
             .unwrap_or_default() as i64,
         group_name: {
-            let name = string([value.get("group_name"), group.and_then(|group| group.get("name"))]);
+            let name = string([
+                value.get("group_name"),
+                group.and_then(|group| group.get("name")),
+            ]);
             if name.is_empty() {
                 string([nested("group_name"), None])
             } else {
@@ -583,12 +595,24 @@ pub struct UsageLogQuery {
 /// Access/refresh pair returned by login and refresh.
 #[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
 pub struct TokenPair {
-    #[serde(default)]
     pub access_token: String,
-    #[serde(default)]
     pub refresh_token: String,
-    #[serde(default)]
+    /// Relative lifetime in seconds, not New API's absolute `expires_at`.
     pub expires_in: i64,
+}
+
+impl TokenPair {
+    fn validate(&self) -> Result<()> {
+        if self.access_token.trim().is_empty()
+            || self.refresh_token.trim().is_empty()
+            || self.expires_in <= 0
+        {
+            return Err(anyhow!(
+                "the service returned an invalid refresh token pair"
+            ));
+        }
+        Ok(())
+    }
 }
 
 /// A desktop session as the login bridge hands it over: a token pair of its
@@ -634,7 +658,9 @@ impl Client {
     }
 
     fn get<T: serde::de::DeserializeOwned>(&self, path: &str, access_token: &str) -> Result<T> {
-        let response = Request::new().bearer(access_token).send(&self.api_url(path))?;
+        let response = Request::new()
+            .bearer(access_token)
+            .send(&self.api_url(path))?;
         unwrap_envelope(&response)
     }
 
@@ -692,11 +718,14 @@ impl Client {
     /// Exchange a refresh token for a fresh pair. Unauthenticated by design:
     /// it is called precisely when the access token has expired.
     pub fn refresh(&self, refresh_token: &str) -> Result<TokenPair> {
-        self.post(
+        let pair: TokenPair = self.post(
             "/auth/refresh",
             None,
             serde_json::json!({ "refresh_token": refresh_token }),
-        )
+        )?;
+        // Reject incomplete/foreign responses before callers persist a renewal.
+        pair.validate()?;
+        Ok(pair)
     }
 
     /// Redeem the one-time code the login bridge showed, with the PKCE
@@ -825,7 +854,13 @@ fn percent_encode(value: &str) -> String {
 /// Unwrap an envelope, turning both transport and application errors into one
 /// error type.
 fn unwrap_envelope<T: serde::de::DeserializeOwned>(response: &Response) -> Result<T> {
-    let envelope: Envelope<T> = response.json()?;
+    let envelope: Envelope<T> = response.json().map_err(|error| {
+        if response.is_success() {
+            error.context("managed API response is incompatible with client-api-v1")
+        } else {
+            error
+        }
+    })?;
     if envelope.code != 0 {
         let message = if envelope.message.is_empty() {
             "the service rejected the request".to_owned()
@@ -884,8 +919,14 @@ mod tests {
     #[test]
     fn api_url_joins_without_double_slashes() {
         let client = Client::new("https://example.org/");
-        assert_eq!(client.api_url("/auth/me"), "https://example.org/api/v1/auth/me");
-        assert_eq!(client.api_url("auth/me"), "https://example.org/api/v1/auth/me");
+        assert_eq!(
+            client.api_url("/auth/me"),
+            "https://example.org/api/v1/auth/me"
+        );
+        assert_eq!(
+            client.api_url("auth/me"),
+            "https://example.org/api/v1/auth/me"
+        );
         assert_eq!(client.endpoint(), "https://example.org");
     }
 
@@ -905,8 +946,7 @@ mod tests {
         assert_eq!(user.balance, 999980.6);
 
         let page: Paginated<ApiKey> =
-            unwrap_envelope(&ok(r#"{"code":0,"data":{"items":null,"total":0}}"#))
-                .expect("unwrap");
+            unwrap_envelope(&ok(r#"{"code":0,"data":{"items":null,"total":0}}"#)).expect("unwrap");
         assert!(page.items.is_empty());
 
         let catalog: ModelCatalog =
@@ -975,14 +1015,12 @@ mod tests {
     fn model_catalog_keeps_optional_prices_optional() {
         // A per-request model has no per-token price; rendering 0.00 there
         // would claim it is free.
-        let catalog: ModelCatalog = unwrap_envelope(&ok(
-            r#"{"code":0,"data":{"items":[
+        let catalog: ModelCatalog = unwrap_envelope(&ok(r#"{"code":0,"data":{"items":[
                 {"model":"gpt-x","display_name":"GPT X","platform":"openai",
                  "best_group":{"id":3,"name":"Std"},
                  "effective_pricing_usd":{"input_per_mtok_usd":1.5,"output_per_mtok_usd":null},
                  "comparison":{"savings_percent":42.0,"is_cheaper_than_official":true}}
-            ]}}"#,
-        ))
+            ]}}"#))
         .expect("unwrap");
         let item = &catalog.items[0];
         assert_eq!(item.display_name, "GPT X");
@@ -995,8 +1033,7 @@ mod tests {
     #[test]
     fn catalog_tolerates_an_entry_missing_everything_optional() {
         let catalog: ModelCatalog =
-            unwrap_envelope(&ok(r#"{"code":0,"data":{"items":[{"model":"m"}]}}"#))
-                .expect("unwrap");
+            unwrap_envelope(&ok(r#"{"code":0,"data":{"items":[{"model":"m"}]}}"#)).expect("unwrap");
         assert_eq!(catalog.items[0].model, "m");
         assert!(catalog.items[0].display_name.is_empty());
     }
@@ -1005,8 +1042,7 @@ mod tests {
     fn catalog_carries_both_price_columns_and_companions() {
         // The plaza renders official struck through beside effective; losing
         // either column silently would misstate the price.
-        let catalog: ModelCatalog = unwrap_envelope(&ok(
-            r#"{"code":0,"data":{"items":[
+        let catalog: ModelCatalog = unwrap_envelope(&ok(r#"{"code":0,"data":{"items":[
                 {"model":"claude-x","display_name":"Claude X","platform":"anthropic",
                  "billing_mode":"token",
                  "best_group":{"id":1,"name":"Fast","rate_multiplier":0.5},
@@ -1020,8 +1056,7 @@ mod tests {
                     "effective_pricing_usd":{"input_per_mtok_usd":3.0},
                     "comparison":{"savings_percent":0.0,"is_cheaper_than_official":false}}]}
             ],"summary":{"total_models":10,"token_models":8,"non_token_models":2,
-                "max_savings_percent":72.5}}}"#,
-        ))
+                "max_savings_percent":72.5}}}"#))
         .expect("unwrap");
         let item = &catalog.items[0];
         assert_eq!(item.official_pricing.input_per_mtok_usd, Some(3.0));
@@ -1094,6 +1129,105 @@ mod tests {
         assert!(url.contains("token=tok%20en%2F%2B1"));
         assert!(url.contains("ui_mode=standalone"));
         assert!(url.contains("lang=zh"));
+    }
+
+    #[test]
+    fn native_new_api_envelopes_are_not_managed_api_successes() {
+        for body in [
+            r#"{"success":true,"message":"","data":{"id":7,"quota":100}}"#,
+            r#"{"success":false,"message":"rejected","data":{"id":7}}"#,
+            r#"{"data":{"id":7}}"#,
+            r#"{"code":null,"data":{"id":7}}"#,
+            r#"{"code":"0","data":{"id":7}}"#,
+        ] {
+            assert!(unwrap_envelope::<User>(&ok(body)).is_err(), "{body}");
+        }
+    }
+
+    #[test]
+    fn refresh_contract_requires_relative_expiry_and_both_tokens() {
+        for body in [
+            r#"{"code":0,"data":{"access_token":"fixture-access","expires_in":900}}"#,
+            r#"{"code":0,"data":{"access_token":"fixture-access","refresh_token":"fixture-refresh","expires_at":2000000000}}"#,
+        ] {
+            assert!(unwrap_envelope::<TokenPair>(&ok(body)).is_err());
+        }
+        for (access_token, refresh_token, expires_in) in [
+            ("", "fixture-refresh", 900),
+            ("fixture-access", "  ", 900),
+            ("fixture-access", "fixture-refresh", 0),
+            ("fixture-access", "fixture-refresh", -1),
+        ] {
+            let pair = TokenPair {
+                access_token: access_token.to_owned(),
+                refresh_token: refresh_token.to_owned(),
+                expires_in,
+            };
+            let error = pair.validate().expect_err("invalid pair");
+            assert!(!format!("{error:#}").contains("fixture-"));
+        }
+        TokenPair {
+            access_token: "fixture-access".into(),
+            refresh_token: "fixture-refresh".into(),
+            expires_in: 900,
+        }
+        .validate()
+        .expect("complete pair");
+    }
+
+    #[test]
+    fn managed_api_http_errors_keep_their_status_and_retry_semantics() {
+        for status in [401, 403, 429, 502] {
+            let error = unwrap_envelope::<User>(&Response {
+                status,
+                body: r#"{"success":false,"message":"fixture rejection"}"#.into(),
+            })
+            .expect_err("HTTP failure");
+            let api_error = error
+                .downcast_ref::<crate::http::ApiError>()
+                .expect("typed HTTP error");
+            assert_eq!(api_error.status, status);
+            assert_eq!(
+                api_error.is_auth_rejection(),
+                status == 401 || status == 403
+            );
+        }
+    }
+
+    #[test]
+    fn frozen_refresh_fixtures_match_the_client_boundary() {
+        for (body, accepted) in [
+            (
+                include_str!("../../../docs/contracts/fixtures/refresh-valid.json"),
+                true,
+            ),
+            (
+                include_str!("../../../docs/contracts/fixtures/native-refresh-success.json"),
+                false,
+            ),
+            (
+                include_str!("../../../docs/contracts/fixtures/native-self-success.json"),
+                false,
+            ),
+            (
+                include_str!("../../../docs/contracts/fixtures/refresh-missing-fields.json"),
+                false,
+            ),
+            (
+                include_str!("../../../docs/contracts/fixtures/refresh-empty-token.json"),
+                false,
+            ),
+            (
+                include_str!("../../../docs/contracts/fixtures/refresh-nonpositive-expiry.json"),
+                false,
+            ),
+        ] {
+            let result = unwrap_envelope::<TokenPair>(&ok(body)).and_then(|pair| pair.validate());
+            assert_eq!(result.is_ok(), accepted);
+            if let Err(error) = result {
+                assert!(!format!("{error:#}").contains("FIXTURE_ONLY_"));
+            }
+        }
     }
 
     #[test]

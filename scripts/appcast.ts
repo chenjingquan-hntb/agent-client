@@ -14,6 +14,7 @@
 //   SPARKLE_BIN                dir containing the Sparkle tools
 //   SPARKLE_PRIVATE_KEY        EdDSA private key (CI; otherwise the keychain)
 //   WAKU_DOWNLOAD_URL_PREFIX   base URL for enclosure links
+import { assertSiteEnclosureUrl, releaseDownloadPrefix, resolveBrandConfig } from "./brand-config.ts";
 import { existsSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 
@@ -68,6 +69,11 @@ export async function generateAppcast(
   updatesDir: string,
   downloadUrlPrefix: string,
 ): Promise<void> {
+  const brand = resolveBrandConfig(process.env, { platform: "macos" });
+  if (brand.siteRelease) {
+    if (downloadUrlPrefix !== releaseDownloadPrefix(process.env, "macos")) throw new Error("Site appcast download prefix must match SUB2API_RELEASES_BASE_URL.");
+    if (!process.env.SPARKLE_PRIVATE_KEY?.trim()) throw new Error("Site feed signing requires an explicit own SPARKLE_PRIVATE_KEY; legacy login-keychain fallback is disabled.");
+  }
   const generator = findGenerateAppcast();
   if (!generator) {
     throw new Error(
@@ -106,9 +112,11 @@ export async function generateAppcast(
   // used does not match the bundle's SUPublicEDKey, and Sparkle rejects an
   // unsigned enclosure — so a silent mismatch would ship a dead update feed.
   const appcastPath = join(updatesDir, "appcast.xml");
-  const unsigned = [
-    ...(await Bun.file(appcastPath).text()).matchAll(/<enclosure\b[^>]*>/g),
-  ]
+  const enclosures = [...(await Bun.file(appcastPath).text()).matchAll(/<enclosure\b[^>]*>/g)];
+  if (brand.siteRelease) {
+    for (const [tag] of enclosures) assertSiteEnclosureUrl(tag.match(/url="([^"]*)"/)?.[1] ?? "", downloadUrlPrefix);
+  }
+  const unsigned = enclosures
     .filter(([tag]) => !tag.includes("sparkle:edSignature="))
     .map(([tag]) => tag.match(/url="([^"]*)"/)?.[1] ?? tag);
   if (unsigned.length > 0) {
@@ -127,7 +135,6 @@ if (import.meta.main) {
     console.error("usage: bun scripts/appcast.ts <updates-dir>");
     process.exit(1);
   }
-  const prefix =
-    process.env.WAKU_DOWNLOAD_URL_PREFIX ?? defaultDownloadUrlPrefix;
+  const prefix = releaseDownloadPrefix(process.env, "macos");
   await generateAppcast(updatesDir, prefix);
 }

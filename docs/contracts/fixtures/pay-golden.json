@@ -1,0 +1,201 @@
+{
+  "note": "Plain JSON original /pay DTO; synthetic, no payment traffic or actual merchant config.",
+  "cases": [
+    {
+      "id": "P01",
+      "dto": "PayOrdersContext",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/pay/api/orders/my?page=1&page_size=20&lang=zh-CN",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS",
+          "Accept-Language": "zh-CN"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "user": {
+            "id": 101,
+            "displayName": "Fixture user",
+            "username": "fixture-user",
+            "email": "fixture@example.invalid",
+            "balance": 2
+          },
+          "summary": {
+            "pending": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "P02",
+      "dto": "PayUserConfig",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/pay/api/user?user_id=101&lang=zh-CN",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS",
+          "Accept-Language": "zh-CN"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "config": {
+            "enabledPaymentTypes": [
+              "fixture-method"
+            ],
+            "methodLimits": {
+              "fixture-method": {
+                "available": true,
+                "remaining": 100,
+                "singleMin": 1,
+                "singleMax": 20,
+                "feeRate": 2.5
+              }
+            },
+            "minAmount": 1,
+            "maxAmount": 1000,
+            "maxPendingOrders": 3,
+            "balanceCreditCnyPerUsd": 7,
+            "stripePublishableKey": null,
+            "balanceDisabled": false
+          }
+        }
+      }
+    },
+    {
+      "id": "P03",
+      "dto": "PayPlans",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/pay/api/subscription-plans?lang=zh-CN",
+        "headers": {
+          "Authorization": "Bearer FIXTURE_ONLY_ACCOUNT_ACCESS",
+          "Accept-Language": "zh-CN"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "plans": [
+            {
+              "id": "fixture-plan",
+              "groupId": 102,
+              "groupName": "fixture-subscription",
+              "name": "Fixture Plan",
+              "description": "Synthetic plan; no actual merchant",
+              "price": 7,
+              "originalPrice": 10,
+              "validityDays": 30,
+              "validityUnit": "month",
+              "features": [
+                "Fixture feature"
+              ],
+              "productName": "Fixture product",
+              "platform": "openai",
+              "rateMultiplier": 1,
+              "limits": {
+                "daily_limit_usd": 2,
+                "weekly_limit_usd": 10,
+                "monthly_limit_usd": 30
+              },
+              "defaultMappedModel": "fixture-model",
+              "supportedModelScopes": [
+                "fixture-model"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "P04",
+      "dto": "PayOrder",
+      "request": {
+        "method": "POST",
+        "url": "https://example.invalid/pay/api/orders?lang=zh-CN",
+        "headers": {
+          "Accept-Language": "zh-CN"
+        },
+        "body": {
+          "token": "FIXTURE_ONLY_ACCOUNT_ACCESS",
+          "amount": 2,
+          "payment_type": "fixture-method",
+          "is_mobile": false
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "orderId": "fixture-order",
+          "amount": 2,
+          "payAmount": 14,
+          "status": "PENDING",
+          "paymentType": "fixture-method",
+          "payUrl": "https://example.invalid/pay/fixture-order",
+          "qrCode": null,
+          "clientSecret": null,
+          "expiresAt": "2026-10-02T01:00:00Z",
+          "statusAccessToken": "FIXTURE_ONLY_ORDER_STATUS"
+        }
+      }
+    },
+    {
+      "id": "P05",
+      "dto": "OrderStatus",
+      "request": {
+        "method": "GET",
+        "url": "https://example.invalid/pay/api/orders/fixture-order?access_token=FIXTURE_ONLY_ORDER_STATUS&lang=zh-CN",
+        "headers": {
+          "Accept-Language": "zh-CN"
+        },
+        "body": null
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "fixture-order",
+          "status": "COMPLETED",
+          "expiresAt": "2026-10-02T01:00:00Z",
+          "paymentSuccess": true,
+          "rechargeSuccess": true,
+          "rechargeStatus": "SUCCESS",
+          "failedReason": null
+        }
+      }
+    },
+    {
+      "id": "P06",
+      "dto": "serde_json::Value",
+      "request": {
+        "method": "POST",
+        "url": "https://example.invalid/pay/api/orders/fixture-order/cancel?lang=zh-CN",
+        "headers": {
+          "Accept-Language": "zh-CN"
+        },
+        "body": {
+          "token": "FIXTURE_ONLY_ACCOUNT_ACCESS"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "success": true
+        }
+      }
+    }
+  ],
+  "subscription_order_request": {
+    "token": "FIXTURE_ONLY_ACCOUNT_ACCESS",
+    "amount": 7,
+    "payment_type": "fixture-method",
+    "is_mobile": false,
+    "order_type": "subscription",
+    "plan_id": "fixture-plan"
+  }
+}

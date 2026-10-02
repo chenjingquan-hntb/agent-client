@@ -1,5 +1,8 @@
 # Releasing
 
+> **本站发行警告（2026-10-02）**：下文 CheapRouter / Waku 域名、桶名、安装身份和签名配置来自上游，不代表本站控制或已部署，不能直接执行发布。先阅读[本站计划](docs/migration/CLIENT-IMPLEMENTATION-PLAN.md)和 M-004/M-005，确认自有 API、更新源、安装身份及密钥。客户端目前为 0.2.8，服务端 cjq 标签不自动成为客户端版本；RC 不得覆盖正式 feed/latest。
+
+
 > **Fork note:** follow [docs/RELEASING.zh.md](docs/RELEASING.zh.md) for the
 > operational runbook — this fork's domain is `releases.cheaprouter.cc`, the
 > bucket is `cheaprouter-releases`, artifacts are named `CheapRouter-*`, and

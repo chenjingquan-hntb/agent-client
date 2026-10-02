@@ -61,15 +61,38 @@ pub const RELEASES_BASE_URL: &str = match option_env!("SUB2API_RELEASES_BASE_URL
 
 /// Application data directory name under the user's home directory.
 ///
-/// Carries the brand (renamed from upstream's `.waku`). Keep the default
-/// identical to `waku_protocol::identity::DATA_DIR_NAME` — that crate cannot
-/// depend on this one, so both read the same build-time variable with the
-/// same fallback. Legacy `~/.waku` state is renamed in place at startup by
+/// Keep this and the platform directory constants identical to
+/// `waku_protocol::identity`: neither crate depends on the other, so both
+/// read the same build-time variables with the same fallbacks. Custom storage
+/// does not import legacy state unless explicitly opted in; see
 /// [`crate::migrate::migrate_legacy_storage`].
 pub const DATA_DIR_NAME: &str = match option_env!("SUB2API_DATA_DIR_NAME") {
     Some(name) => name,
     None => ".cheaprouter",
 };
+
+/// Platform data/cache directory for release builds. A directory name, not
+/// an absolute path. Independent of the display name and home dot-folder.
+pub const DATA_DIRECTORY_NAME_RELEASE: &str = match option_env!("SUB2API_PLATFORM_DATA_DIR_NAME") {
+    Some(name) => name,
+    None => "CheapRouter",
+};
+
+/// Debug-specific override; a common override otherwise applies to both
+/// profiles. Set both variables to keep debug and release storage separate.
+pub const DATA_DIRECTORY_NAME_DEBUG: &str =
+    match option_env!("SUB2API_PLATFORM_DATA_DIR_NAME_DEBUG") {
+        Some(name) => name,
+        None => match option_env!("SUB2API_PLATFORM_DATA_DIR_NAME") {
+            Some(name) => name,
+            None => "CheapRouter Debug",
+        },
+    };
+
+#[cfg(debug_assertions)]
+pub const DATA_DIRECTORY_NAME: &str = DATA_DIRECTORY_NAME_DEBUG;
+#[cfg(not(debug_assertions))]
+pub const DATA_DIRECTORY_NAME: &str = DATA_DIRECTORY_NAME_RELEASE;
 
 /// Whether upstream's analytics client should be constructed at all.
 ///
