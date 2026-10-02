@@ -1,6 +1,6 @@
 # M-004 自有品牌、端点与安装身份
 
-- 状态：最小 Rust 基础代码已落地；Rust 编译/测试待执行，完整发行验收仍未完成，上线依赖 M-003 与包装集成。
+- 状态：最小 Rust 基础代码已落地，macOS/Windows Rust CI 及 release-profile identity_config 已通过；完整发行验收仍未完成，上线依赖 M-003、正式元数据与实际包装验收。
 - 背景：默认CheapRouter，用户确认域名但未确认正式名称/图标/平台，不自行用域名猜品牌。
 - 写集：本卡、`crates/sub2api/src/brand.rs`、`crates/waku-protocol/src/identity.rs`、`resources/`、必要品牌资产/文档。额外hook先登记。发行scripts归M-005。
 
@@ -66,3 +66,7 @@ cargo test --offline --locked --release -p sub2api --test identity_config
 ~~~
 
 编译配置测试应在隔离子进程分别覆盖：①全部相关变量未设置；②仅 release bundle ID；③home + 共同平台目录覆盖（debug 应继承共同平台目录）；④再增加 debug bundle ID/debug 平台目录覆盖。每组运行 debug 和 release 的 identity_config 测试；测试值仅用明显的测试目录和 `org.example.identity-test` 类测试 ID，不作为生产配置写入仓库。迁移单元测试以注入参数设计覆盖自定义目录、显式允许/禁止、SITE_RELEASE、来源优先级、现有目标、失败及重复根路径，无需操作真实用户目录。
+
+## 最新验证状态（2026-10-02）
+
+前文“Rust 尚未执行/待执行”保留为当时的历史记录。最新提交 `147d0f2513a5bcc43e70b008f14724c0d98299c4` 的 PR workflow `36961036557` 已在 macOS/Windows 两个平台通过 `cargo test --locked` 与 release-profile `identity_config`；PR #1 已合并为 `111d48ba31017e9b01323b0f9685643952c23203`。这些结果不证明真实认证、provider、安装签名或更新验收通过。

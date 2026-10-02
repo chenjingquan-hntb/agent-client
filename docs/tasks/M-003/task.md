@@ -1,6 +1,6 @@
 # M-003 最小兼容实现与版本化契约
 
-- 状态：IN_PROGRESS（2026-10-02）；客户端协议边界防护已落地，完整桥接与隔离验收仍依赖M-002、server T007。
+- 状态：IN_PROGRESS（2026-10-02）；客户端协议边界防护已通过 macOS/Windows Rust CI，并经 PR #1 合并；完整桥接与隔离验收仍依赖M-002、server T007。
 - 背景：保留客户端原认证交互/数据范围，New API不大改；先证明缺口再适配。
 - 写集：本卡、`docs/contracts/`；M-002后逐文件声明 `crates/sub2api/`适配模块和最少desktop hook。server代码由T007单独承担，不跨仓混写。
 
@@ -26,3 +26,9 @@
 验证边界：当前Windows开发环境能执行Bun，但PATH未找到 `cargo` / `rustc`；Rust回归测试尚未运行，也没有宣称应用编译或provider运行验收通过。离线fixture测试不代替Rust代码执行。
 
 剩余：server T007原桥/code exchange/refresh/logout；完整用户数据及key/分组/分页转换；无等价源功能的显式能力降级；至少一个provider/CLI与SSE隔离验收。未连接生产、未更改默认端点、未扩管理员或云同步、未视觉测试。
+
+## 最新验证状态（2026-10-02）
+
+前文“Rust 尚未执行/待执行”保留为当时的历史记录。最新提交 `147d0f2513a5bcc43e70b008f14724c0d98299c4` 的 PR workflow `36961036557` 已在 macOS/Windows 两个平台通过 `cargo test --locked` 与 release-profile `identity_config`；PR #1 已合并为 `111d48ba31017e9b01323b0f9685643952c23203`。这些结果不证明真实认证、provider、安装签名或更新验收通过。
+
+下一阶段客户端回归：新增 `tests/http_boundary.rs`，loopback 真实 curl integration tests 7/7 通过，覆盖 exchange/refresh 请求与错误边界；不代表 server T007 已实现。服务端当前源码未找到 desktop bridge，证据及最小后续见[下一阶段依赖核对](../../migration/CLIENT-NEXT-STAGE.md)。
