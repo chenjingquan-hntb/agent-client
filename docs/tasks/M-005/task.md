@@ -81,3 +81,20 @@ Bun 1.4.0：**62 pass / 0 fail，309 次断言**。包括标签分类/未知标�
 仅普通 `X.Y.Z` macOS/Windows自有发行链路已接入；cjq/RC及自有Linux构建仍明确拒绝。正式公开元数据/公钥/证书仍待确认；原生签名/公证/安装更新、首次stable bootstrap及真实Sparkle XML兼容性均未验收，不能据此发行。详见[本轮记录](../../migration/CLIENT-IMPLEMENTATION-LOG.md)。
 
 最终产物命名集成补齐：site产品名预检限定为ASCII字母开头、后续字母/数字/下划线/连字符，与sync门禁一致；publisher/platform目录仍支持安全Unicode/空格。通道门禁显式接受 `*-X.Y.Z-{x86_64,aarch64}-pc-windows-msvc.zip` 原生产物，新增14项命名回归，未知架构/平台、错误版本和非精确扩展名拒绝。仅验证合成资产名，不宣称真实安装包已生成或签名。
+
+## 2026-10-03：M-005 CLI 离线边界回归补充
+
+本轮在独立客户端分支补充 `scripts/release-channel-cli.test.ts`，并将其接入 `scripts/validate-client-phase.ts`。回归覆盖 classify 的精确 `GITHUB_OUTPUT`、缺失/非法环境与 tag、legacy source 拒绝；metadata 的 published/workflow_dispatch、draft/channel/tag/malformed/missing payload、两份 release evidence 的一致性及不回显输入；plan 的 stable/RC 输出、allowlist/state、immutable collision、state/pointer/evidence、非法资产、子目录、下载内容不一致、已有输出目录拒绝复用，以及空格路径、Bun argv/env、超时、有界 stdout/stderr、finally kill/reap 和临时目录清理边界。
+
+实际命令及结果：
+
+```text
+bun test scripts/release-channel.test.ts scripts/release-channel-cli.test.ts
+92 pass / 0 fail / 434 expect() calls
+bun scripts/validate-client-phase.ts
+307 pass / 0 fail / 903 expect() calls
+```
+
+Windows 当前无法创建 synthetic symlink（`EPERM`），因此 symlink 分支按平台能力明确 skip；这不等同于已在支持 symlink 的平台完成该分支验证。测试使用 synthetic、本地、离线输入，不执行网络、`gh`、rclone 或生产上传。
+
+本轮未验证真实安装包、真实签名、公证、R2/对象存储、更新器、Sparkle/macOS 产物、真实 CI 发布流程或生产发布；离线 synthetic 回归不等于真实发布验收。M-005 继续保持 `PARTIAL`，正式身份、密钥、发布和生产操作仍需另行确认。

@@ -120,6 +120,7 @@ function workflowBash(bash: string, path: string): { checked: number; skipped: n
 const testFiles = [
   "scripts/brand-config.test.ts",
   "scripts/release-channel.test.ts",
+  "scripts/release-channel-cli.test.ts",
   "docs/contracts/fixtures.test.ts",
 ];
 // Always parse the phase's TS even in a clean CI checkout, plus modified,
@@ -186,7 +187,7 @@ async function main() {
   checkBash(bash, "scripts/bundle.sh", readFileSync(resolve(root, "scripts/bundle.sh"), "utf8"));
   console.log(`[phase] ${blocks} workflow Bash blocks + scripts/bundle.sh passed bash -n; none executed`);
 
-  console.log(`[phase] Running ${testFiles.length} existing offline Bun test files`);
+  console.log(`[phase] Running ${testFiles.length} offline Bun test files`);
   const test = Bun.spawn([process.execPath, "test", ...testFiles], {
     cwd: root, env: environment, stdin: "ignore", stdout: "inherit", stderr: "inherit",
   });

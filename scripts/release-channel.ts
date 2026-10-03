@@ -3,7 +3,7 @@
  * CLI inputs are local JSON/files; only the workflow performs gh/rclone I/O.
  */
 import { createHash } from "node:crypto";
-import { appendFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { appendFile, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 export const POINTERS = [
@@ -70,6 +70,16 @@ export interface GitHubRelease {
   assets: { name: string; size: number }[];
 }
 
+function releaseEvidence(release: GitHubRelease): string {
+  return JSON.stringify({
+    tag_name: release.tag_name,
+    draft: release.draft,
+    prerelease: release.prerelease,
+    assets: release.assets
+      .map(({ name, size }) => ({ name, size }))
+      .sort((left, right) => left.name.localeCompare(right.name)),
+  });
+}
 export function validateRelease(tag: string, release: GitHubRelease): ReleaseTag {
   const parsed = classifyTag(tag);
   requireThat(release && release.tag_name === tag, "GitHub release tag mismatch");
@@ -304,9 +314,15 @@ async function main(): Promise<void> {
     requireThat(process.env.GITHUB_OUTPUT, "GITHUB_OUTPUT is required");
     await appendFile(process.env.GITHUB_OUTPUT, `tag=${tag}\nchannel=${parsed.channel}\nprefix=${channelPrefix(tag)}\n`);
   } else if (command === "metadata" && args.length === 2) {
-    validateRelease(tag, await readJson(args[0]!));
+    const release = await readJson(args[0]!);
+    validateRelease(tag, release);
     if (process.env.GITHUB_EVENT_NAME === "release") {
-      validateRelease(tag, (await readJson(args[1]!)).release);
+      const eventRelease = (await readJson(args[1]!)).release;
+      validateRelease(tag, eventRelease);
+      requireThat(
+        releaseEvidence(release) === releaseEvidence(eventRelease),
+        "GitHub release payloads disagree",
+      );
     } else {
       requireThat(process.env.GITHUB_EVENT_NAME === "workflow_dispatch", "Unsupported sync event");
     }
@@ -326,11 +342,13 @@ async function main(): Promise<void> {
       currentState: stable && paths.has(STATE_FILE) ? await readJson(join(evidenceDir, STATE_FILE)) : undefined,
       currentPointers,
     });
-    await mkdir(outputDir, { recursive: true });
-    await writeFile(join(outputDir, "plan.json"), `${JSON.stringify(plan, null, 2)}\n`);
+    await mkdir(outputDir);
     await writeFile(join(outputDir, "immutable-files.txt"), `${plan.immutable.join("\n")}\n`);
     await writeFile(join(outputDir, "pointer-files.txt"), plan.pointers.length ? `${plan.pointers.join("\n")}\n` : "");
     if (plan.state) await writeFile(join(outputDir, STATE_FILE), `${JSON.stringify(plan.state, null, 2)}\n`);
+    const temporaryPlanPath = join(outputDir, ".plan.json.tmp");
+    await writeFile(temporaryPlanPath, `${JSON.stringify(plan, null, 2)}\n`);
+    await rename(temporaryPlanPath, join(outputDir, "plan.json"));
     console.log(`Validated ${plan.channel} sync: ${tag} -> ${plan.prefix || "stable root"}`);
   } else {
     throw new Error("Usage: release-channel.ts classify | metadata <release.json> <event.json> | plan <release.json> <assets> <objects.json> <evidence> <output>; tag/config supplied via environment");
